@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,9 +13,11 @@ namespace MailerWeb.Controllers
     {
         // GET api/values
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
+        public JsonResult Get()
         {
-            return new string[] { "value1", "value2" };
+            //return new string[] { "value1", "value2" };
+            return new JsonResult(StatusCode((int)HttpStatusCode.Forbidden, "test"));
+            //return StatusCode(StatusCodes.Status403Forbidden, <you object>);
         }
 
         // GET api/values/5

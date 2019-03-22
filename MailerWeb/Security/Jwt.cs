@@ -14,25 +14,7 @@ namespace MailerWeb.Security
     {
         private const string Secret = "cCrl50ViLseEpTYDEHNPJlMKL6icVWQC";
 
-        private static string ByteArrayToString(byte[] arrInput)
-        {
-            int i;
-            StringBuilder sOutput = new StringBuilder(arrInput.Length);
-            for (i = 0; i < arrInput.Length - 1; i++)
-            {
-                sOutput.Append(arrInput[i].ToString("X2"));
-            }
-            return sOutput.ToString();
-        }
-
-        public static string GetMd5Hash(string data)
-        {
-            var tmpSource = Encoding.ASCII.GetBytes(data);
-            var tmpNewHash = new MD5CryptoServiceProvider().ComputeHash(tmpSource);
-            return ByteArrayToString(tmpNewHash);
-        }
-
-        public static string GenerateToken(string login, string password, int expireMinutes = 43200)
+        public static string GenerateToken(string login, string key, int expireMinutes = 43200)
         {
             var symmetricKey = Convert.FromBase64String(Secret);
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -42,8 +24,8 @@ namespace MailerWeb.Security
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim("Login", password),
-                    new Claim("Password", password)
+                    new Claim("Login", login),
+                    new Claim("Key", key)
                 }),
 
                 Expires = now.AddMinutes(Convert.ToInt32(expireMinutes)),
