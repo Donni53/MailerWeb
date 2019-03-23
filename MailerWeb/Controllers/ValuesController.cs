@@ -11,12 +11,21 @@ namespace MailerWeb.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
+
+        /*
+        private readonly IDataRepository<Employee> _dataRepository;
+ 
+        public EmployeeController(IDataRepository<Employee> dataRepository)
+        {
+            _dataRepository = dataRepository;
+        }
+        */
         // GET api/values
         [HttpGet]
-        public JsonResult Get()
+        public string[] Get()
         {
-            //return new string[] { "value1", "value2" };
-            return new JsonResult(StatusCode((int)HttpStatusCode.Forbidden, "test"));
+            return new string[] { "value1", "value2" };
+            //return new JsonResult(StatusCode((int)HttpStatusCode.Forbidden, "test"));
             //return StatusCode(StatusCodes.Status403Forbidden, <you object>);
         }
 

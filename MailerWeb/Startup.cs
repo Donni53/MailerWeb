@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MailerWeb.Extensions;
 using MailerWeb.Models;
+using MailerWeb.Models.DataManager;
+using MailerWeb.Models.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -30,6 +33,7 @@ namespace MailerWeb
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<DataBaseContext>(options =>
                 options.UseSqlServer(connection));
+            services.AddScoped<IUserRepository<User>, UserManager>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddMemoryCache();
         }
@@ -47,6 +51,7 @@ namespace MailerWeb
                 app.UseHsts();
             }
 
+            app.ConfigureExceptionHandler();
             app.UseHttpsRedirection();
             app.UseMvc();
         }
