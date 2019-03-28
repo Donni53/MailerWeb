@@ -12,8 +12,11 @@ namespace MailerWeb.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+        [Required]
         public string Address { get; set; }
+        [Required]
         public int Port { get; set; }
+        [Required]
         public bool Ssl { get; set; }
     }
 }

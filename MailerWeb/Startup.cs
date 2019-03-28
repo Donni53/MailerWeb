@@ -6,10 +6,12 @@ using MailerWeb.Extensions;
 using MailerWeb.Models;
 using MailerWeb.Models.DataManager;
 using MailerWeb.Models.Repository;
+using MailerWeb.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +36,9 @@ namespace MailerWeb
             services.AddDbContext<DataBaseContext>(options =>
                 options.UseSqlServer(connection));
             services.AddScoped<IUserRepository<User>, UserManager>();
+            services.AddScoped<IImapService, ImapService>();
+            services.AddScoped<ISmtpService, SmtpService>();
+            services.AddScoped<AuthService>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddMemoryCache();
         }
