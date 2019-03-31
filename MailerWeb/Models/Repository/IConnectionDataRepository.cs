@@ -5,13 +5,11 @@ using System.Threading.Tasks;
 
 namespace MailerWeb.Models.Repository
 {
-    public interface IUserRepository<TEntity>
+    public interface IConnectionDataRepository<TEntity>
     {
-        TEntity Get(long id);
-        TEntity GetByLogin(string login);
+        TEntity GetByDomain(string domain);
+        TEntity GetByAddress(string imapAddress, string smtpAddress);
         Task AddAsync(TEntity entity);
-        void Update(User entity, User newEntity);
-        void Delete(TEntity entity);
         Task SaveAsync();
     }
 }

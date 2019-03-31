@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MailKit.Net.Smtp;
 using MimeKit;
 
 namespace MailerWeb.Services
 {
-    interface ISmtpService
+    public interface ISmtpService
     {
+        SmtpClient Client { get; set; }
         void AcceptAllSslCertificates(bool value);
 
         Task ConnectAsync(string address, int port, bool ssl);

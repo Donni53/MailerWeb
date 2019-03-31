@@ -4,57 +4,22 @@ using MailerWeb.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MailerWeb.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20190330195816_constructors")]
+    partial class constructors
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.2.3-servicing-35854")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-            modelBuilder.Entity("MailerWeb.Models.ConnectionConfiguration", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("ImapConfigurationId");
-
-                    b.Property<int>("SmtpConfigurationId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ImapConfigurationId");
-
-                    b.HasIndex("SmtpConfigurationId");
-
-                    b.ToTable("ConnectionConfigurations");
-                });
-
-            modelBuilder.Entity("MailerWeb.Models.EmailDomain", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int?>("ConnectionConfigurationId");
-
-                    b.Property<string>("Domain")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ConnectionConfigurationId");
-
-                    b.ToTable("EmailDomain");
-                });
 
             modelBuilder.Entity("MailerWeb.Models.ImapConfiguration", b =>
                 {
@@ -67,9 +32,11 @@ namespace MailerWeb.Migrations
 
                     b.Property<int>("Port");
 
+                    b.Property<bool>("Ssl");
+
                     b.HasKey("Id");
 
-                    b.ToTable("ImapConfiguration");
+                    b.ToTable("ImapConfigurations");
                 });
 
             modelBuilder.Entity("MailerWeb.Models.Settings", b =>
@@ -123,9 +90,11 @@ namespace MailerWeb.Migrations
 
                     b.Property<int>("Port");
 
+                    b.Property<bool>("Ssl");
+
                     b.HasKey("Id");
 
-                    b.ToTable("SmtpConfiguration");
+                    b.ToTable("SmtpConfigurations");
                 });
 
             modelBuilder.Entity("MailerWeb.Models.User", b =>
@@ -134,7 +103,7 @@ namespace MailerWeb.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("ConnectionSettingsId");
+                    b.Property<int>("ImapSettingsId");
 
                     b.Property<string>("Login")
                         .IsRequired();
@@ -146,35 +115,19 @@ namespace MailerWeb.Migrations
                     b.Property<string>("Password")
                         .IsRequired();
 
-                    b.Property<int?>("SettingsId");
+                    b.Property<int>("SettingsId");
+
+                    b.Property<int>("SmtpSettingsId");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ConnectionSettingsId");
+                    b.HasIndex("ImapSettingsId");
 
                     b.HasIndex("SettingsId");
 
+                    b.HasIndex("SmtpSettingsId");
+
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("MailerWeb.Models.ConnectionConfiguration", b =>
-                {
-                    b.HasOne("MailerWeb.Models.ImapConfiguration", "ImapConfiguration")
-                        .WithMany()
-                        .HasForeignKey("ImapConfigurationId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("MailerWeb.Models.SmtpConfiguration", "SmtpConfiguration")
-                        .WithMany()
-                        .HasForeignKey("SmtpConfigurationId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("MailerWeb.Models.EmailDomain", b =>
-                {
-                    b.HasOne("MailerWeb.Models.ConnectionConfiguration")
-                        .WithMany("DomainsList")
-                        .HasForeignKey("ConnectionConfigurationId");
                 });
 
             modelBuilder.Entity("MailerWeb.Models.Signature", b =>
@@ -186,14 +139,20 @@ namespace MailerWeb.Migrations
 
             modelBuilder.Entity("MailerWeb.Models.User", b =>
                 {
-                    b.HasOne("MailerWeb.Models.ConnectionConfiguration", "ConnectionSettings")
+                    b.HasOne("MailerWeb.Models.ImapConfiguration", "ImapSettings")
                         .WithMany()
-                        .HasForeignKey("ConnectionSettingsId")
+                        .HasForeignKey("ImapSettingsId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("MailerWeb.Models.Settings", "Settings")
                         .WithMany()
-                        .HasForeignKey("SettingsId");
+                        .HasForeignKey("SettingsId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("MailerWeb.Models.SmtpConfiguration", "SmtpSettings")
+                        .WithMany()
+                        .HasForeignKey("SmtpSettingsId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

@@ -7,14 +7,12 @@ using System.Threading.Tasks;
 
 namespace MailerWeb.Models
 {
-    public class ImapConfiguration
+    public class EmailDomain
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         [Required]
-        public string Address { get; set; }
-        [Required]
-        public int Port { get; set; }
+        public string Domain { get; set; }
     }
 }

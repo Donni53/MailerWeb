@@ -34,8 +34,10 @@ namespace MailerWeb
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<DataBaseContext>(options =>
-                options.UseSqlServer(connection));
+                options.UseLazyLoadingProxies().
+                UseSqlServer(connection));
             services.AddScoped<IUserRepository<User>, UserManager>();
+            services.AddScoped<IConnectionDataRepository<ConnectionConfiguration>, ConnectionDataManager>();
             services.AddScoped<IImapService, ImapService>();
             services.AddScoped<ISmtpService, SmtpService>();
             services.AddScoped<AuthService>();

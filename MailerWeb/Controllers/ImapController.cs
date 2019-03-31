@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MailerWeb.Models;
+using MailerWeb.Models.Responses;
 using MailerWeb.Services;
+using MailKit.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,17 +24,41 @@ namespace MailerWeb.Controllers
         }
 
         [HttpPost]
-        [Route("Auth")]
-        public async Task<IActionResult> Auth([FromBody]User user)
+        [Route("SignUp")]
+        public async Task<IActionResult> SignUp([FromBody]User user)
         {
             try
             {
-                await _authService.Auth(user);
-                return Ok(user);
+                var token = await _authService.SignUpAsync(user);
+                return StatusCode(200, new TokenResponse() { Status = 200, Code = 0, Token = token });
             }
             catch (Exception e)
             {
-                return StatusCode(500, e.Message);
+                var statusCode = 500;
+                if (e is AuthenticationException)
+                    statusCode = 401;
+
+                return StatusCode(statusCode, new ErrorResponse() { Status = 500, DeveloperMessage = e.Source, UserMessage = e.Message, MoreInfo = e.HelpLink, ErrorCode = e.HResult });
+            }
+        }
+
+
+        [HttpPost]
+        [Route("SignIn")]
+        public async Task<IActionResult> SignIn([FromBody]SignInCredentials signInCredentials)
+        {
+            try
+            {
+                var token = await _authService.SignInAsync(signInCredentials);
+                return StatusCode(200, new TokenResponse() { Status = 200, Code = 0, Token = token });
+            }
+            catch (Exception e)
+            {
+                var statusCode = 500;
+                if (e is AuthenticationException)
+                    statusCode = 401;
+
+                return StatusCode(statusCode, new ErrorResponse() { Status = 500, DeveloperMessage = e.Source, UserMessage = e.Message, MoreInfo = e.HelpLink, ErrorCode = e.HResult });
             }
         }
 

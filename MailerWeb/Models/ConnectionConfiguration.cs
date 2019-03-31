@@ -7,14 +7,20 @@ using System.Threading.Tasks;
 
 namespace MailerWeb.Models
 {
-    public class ImapConfiguration
+    public class ConnectionConfiguration
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         [Required]
-        public string Address { get; set; }
+        public virtual ImapConfiguration ImapConfiguration { get; set; }
         [Required]
-        public int Port { get; set; }
+        public virtual SmtpConfiguration SmtpConfiguration { get; set; }
+        public virtual ICollection<EmailDomain> DomainsList { get; set; }
+
+        public ConnectionConfiguration()
+        {
+            DomainsList = new List<EmailDomain>();
+        }
     }
 }

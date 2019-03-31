@@ -14,7 +14,7 @@ namespace MailerWeb.Security
     {
         private const string Secret = "cCrl50ViLseEpTYDEHNPJlMKL6icVWQC";
 
-        public static string GenerateToken(string login, string key, int expireMinutes = 43200)
+        public static string GenerateToken(string login, string key, string vector, int expireMinutes = 43200)
         {
             var symmetricKey = Convert.FromBase64String(Secret);
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -25,7 +25,8 @@ namespace MailerWeb.Security
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim("Login", login),
-                    new Claim("Key", key)
+                    new Claim("Key", key),
+                    new Claim("IV", vector)
                 }),
 
                 Expires = now.AddMinutes(Convert.ToInt32(expireMinutes)),

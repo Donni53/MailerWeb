@@ -15,5 +15,12 @@ namespace MailerWeb.Models
         public string Theme { get; set; }
         public string Localization { get; set; }
         public bool Notifications { get; set; }
+
+        public Settings()
+        {
+            Theme = "Yeti";
+            Localization = "ru";
+            Notifications = false;
+        }
     }
 }

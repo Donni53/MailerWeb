@@ -14,8 +14,7 @@ namespace MailerWeb.Models
         }
 
         public DbSet<User> Users { get; set; }
-        public DbSet<ImapConfiguration> ImapConfigurations { get; set; } 
-        public DbSet<SmtpConfiguration> SmtpConfigurations { get; set; }
+        public DbSet<ConnectionConfiguration> ConnectionConfigurations{ get; set; } 
 
     }
 }

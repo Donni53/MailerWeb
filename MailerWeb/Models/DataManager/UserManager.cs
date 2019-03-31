@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MailerWeb.Models.Repository;
+using Microsoft.EntityFrameworkCore;
 
 namespace MailerWeb.Models.DataManager
 {
@@ -13,7 +14,7 @@ namespace MailerWeb.Models.DataManager
         {
             _db = dbContext;
         }
-        public async Task Add(User entity)
+        public async Task AddAsync(User entity)
         {
             await _db.Users.AddAsync(entity);
         }
@@ -31,23 +32,21 @@ namespace MailerWeb.Models.DataManager
 
         public User GetByLogin(string login)
         {
-            return _db.Users
+            return _db.Users//.Include("ConnectionSettings").Include("Settings").Include("ImapConfiguration").Include("SmtpConfiguration")
                 .FirstOrDefault(e => e.Login == login);
         }
 
-        public void Update(User dbEntity, User entity)
+        public void Update(User entity, User newEntity)
         {
-            dbEntity.Login = entity.Login;
-            dbEntity.Password = entity.Password;
-            dbEntity.Name = entity.Name;
-            dbEntity.Nickname = entity.Nickname;
-            dbEntity.ImapSettings = entity.ImapSettings;
-            dbEntity.SmtpSettings = entity.SmtpSettings;
-            dbEntity.Signatures = entity.Signatures;
-            dbEntity.Settings = entity.Settings;
+            entity.Password = newEntity.Password;
+            entity.Name = newEntity.Name;
+            entity.Nickname = newEntity.Nickname;
+            entity.ConnectionSettings = newEntity.ConnectionSettings;
+
+            _db.Users.Update(entity);
         }
 
-        public async Task Save()
+        public async Task SaveAsync()
         {
             await _db.SaveChangesAsync();
         }

@@ -9,6 +9,7 @@ namespace MailerWeb.Models
 {
     public class User
     {
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
@@ -19,12 +20,13 @@ namespace MailerWeb.Models
         public string Name { get; set; }
         public string Nickname { get; set; }
         [Required]
-        public ImapConfiguration ImapSettings { get; set; }
-        [Required]
-        public SmtpConfiguration SmtpSettings { get; set; }
-        public List<Signature> Signatures { get; set; }
-        [Required]
-        public Settings Settings { get; set; }
+        public virtual ConnectionConfiguration ConnectionSettings { get; set; }
+        public virtual ICollection<Signature> Signatures { get; set; }
+        public virtual Settings Settings { get; set; }
 
+        public User()
+        {
+            Signatures = new List<Signature>();
+        }
     }
 }

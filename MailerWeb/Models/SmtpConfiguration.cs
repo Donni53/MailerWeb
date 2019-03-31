@@ -16,7 +16,5 @@ namespace MailerWeb.Models
         public string Address { get; set; }
         [Required]
         public int Port { get; set; }
-        [Required]
-        public bool Ssl { get; set; }
     }
 }
