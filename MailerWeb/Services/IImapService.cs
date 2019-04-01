@@ -17,6 +17,7 @@ namespace MailerWeb.Services
         Task AuthenticateAsync(string login, string password);
 
         Task OpenFolder(IMailFolder folder);
+        Task UpdateFolder(IMailFolder folder);
 
         Task<IList<IMailFolder>> GetFoldersAsync();
 

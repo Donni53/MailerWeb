@@ -43,6 +43,15 @@ namespace MailerWeb.Services
                 await folder.OpenAsync(FolderAccess.ReadWrite);
         }
 
+        public async Task UpdateFolder(IMailFolder folder)
+        {
+            await folder.StatusAsync(StatusItems.MailboxId);
+            await folder.StatusAsync(StatusItems.Recent);
+            await folder.StatusAsync(StatusItems.Unread);
+            await folder.StatusAsync(StatusItems.Size);
+            await folder.StatusAsync(StatusItems.Count);
+        }
+
         public async Task<IList<IMailFolder>> GetFoldersAsync()
         {
             var folders = await _client.GetFoldersAsync(_client.PersonalNamespaces.FirstOrDefault());

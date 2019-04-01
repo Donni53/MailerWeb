@@ -14,6 +14,15 @@ namespace MailerWeb.Security
     {
         private const string Secret = "cCrl50ViLseEpTYDEHNPJlMKL6icVWQC";
 
+        public static IEnumerable<Claim> DecodeToken(string token)
+        {
+            var symmetricKey = Convert.FromBase64String(Secret);
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var subject = tokenHandler.ReadJwtToken(token);
+            //TODO tokenHandler.CanValidateToken
+            return subject.Claims;
+        }
+
         public static string GenerateToken(string login, string key, string vector, int expireMinutes = 43200)
         {
             var symmetricKey = Convert.FromBase64String(Secret);

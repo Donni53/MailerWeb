@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using MailerWeb.Models;
 using MailerWeb.Models.Repository;
 using MailerWeb.Security;
+using MailKit.Net.Imap;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace MailerWeb.Services
@@ -113,6 +115,34 @@ namespace MailerWeb.Services
                 var token = await SignUpAsync(user);
                 return token;
             }
+        }
+
+
+        public async Task<ImapClient> ImapRefresh(string token)
+        {
+            var claims = Jwt.DecodeToken(token);
+            var enumerable = claims as Claim[] ?? claims.ToArray();
+            var login = enumerable.FirstOrDefault(e => e.Type == "Login")?.Value;
+            var key = enumerable.FirstOrDefault(e => e.Type == "Key")?.Value;
+            var vector = enumerable.FirstOrDefault(e => e.Type == "IV")?.Value;
+            var dbUser = _dataRepository.GetByLogin(login);
+            if (dbUser == null)
+                throw new Exception("Can't find user");
+            var password = RijndaelManager.DecryptStringFromBytes(Convert.FromBase64String(dbUser.Password), Convert.FromBase64String(key), Convert.FromBase64String(vector));
+            _imapService.AcceptAllSslCertificates(true);
+            await _imapService.ConnectAsync(dbUser.ConnectionSettings.ImapConfiguration.Address, dbUser.ConnectionSettings.ImapConfiguration.Port, true);
+            await _imapService.AuthenticateAsync(dbUser.Login, password);
+
+
+            var options = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(600),
+                SlidingExpiration = TimeSpan.FromSeconds(600)
+            };
+
+            _memoryCache.Set($"{token}:imap", _imapService.Client, options);
+
+            return _imapService.Client;
         }
     }
 }

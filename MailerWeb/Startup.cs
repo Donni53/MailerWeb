@@ -40,6 +40,7 @@ namespace MailerWeb
             services.AddScoped<IConnectionDataRepository<ConnectionConfiguration>, ConnectionDataManager>();
             services.AddScoped<IImapService, ImapService>();
             services.AddScoped<ISmtpService, SmtpService>();
+            services.AddScoped<ImapMailService>();
             services.AddScoped<AuthService>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddMemoryCache();

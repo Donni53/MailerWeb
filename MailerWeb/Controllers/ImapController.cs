@@ -17,10 +17,12 @@ namespace MailerWeb.Controllers
     {
 
         private readonly AuthService _authService;
+        private readonly ImapMailService _imapMailService;
 
-        public ImapController(AuthService authService)
+        public ImapController(AuthService authService, ImapMailService imapMailService)
         {
             _authService = authService;
+            _imapMailService = imapMailService;
         }
 
         [HttpPost]
@@ -58,6 +60,22 @@ namespace MailerWeb.Controllers
                 if (e is AuthenticationException)
                     statusCode = 401;
 
+                return StatusCode(statusCode, new ErrorResponse() { Status = 500, DeveloperMessage = e.Source, UserMessage = e.Message, MoreInfo = e.HelpLink, ErrorCode = e.HResult });
+            }
+        }
+
+        [HttpGet]
+        [Route("GetFolders")]
+        public async Task<IActionResult> GetFolders([FromQuery]string token)
+        {
+            try
+            {
+                var folders = await _imapMailService.GetFoldersAsync(token);
+                return StatusCode(200, new FoldersResponse() { Status = 200, Code = 0, Count = folders.Count, Folders = folders });
+            }
+            catch (Exception e)
+            {
+                var statusCode = 500;
                 return StatusCode(statusCode, new ErrorResponse() { Status = 500, DeveloperMessage = e.Source, UserMessage = e.Message, MoreInfo = e.HelpLink, ErrorCode = e.HResult });
             }
         }
