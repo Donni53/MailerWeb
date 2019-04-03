@@ -20,6 +20,7 @@ namespace MailerWeb.Services
         Task UpdateFolder(IMailFolder folder);
 
         Task<IList<IMailFolder>> GetFoldersAsync();
+        Task<IMailFolder> GetMailFolderByNameAsync(string name);
 
         Task<IMailFolder> CreateFolderAsync(string displayName);
 

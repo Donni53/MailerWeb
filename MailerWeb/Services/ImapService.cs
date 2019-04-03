@@ -58,6 +58,12 @@ namespace MailerWeb.Services
             return folders;
         }
 
+        public async Task<IMailFolder> GetMailFolderByNameAsync(string name)
+        {
+            var folder = await _client.GetFolderAsync(name);
+            return folder;
+        }
+
         public async Task<IMailFolder> CreateFolderAsync(string displayName)
         {
             var topLevelFolder = await _client.GetFolderAsync(_client.PersonalNamespaces.FirstOrDefault()?.Path);

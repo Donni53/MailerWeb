@@ -8,6 +8,7 @@ using MailerWeb.Services;
 using MailKit.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace MailerWeb.Controllers
 {
@@ -80,5 +81,22 @@ namespace MailerWeb.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("GetMessages")]
+        public async Task<IActionResult> GetMessagesAsync([FromQuery]string token, int min, int max, string folderName)
+        {
+            try
+            {
+                var messages = await _imapMailService.GetFolderMessagesAsync(token, min, max, folderName);
+                //return StatusCode(200, new FoldersResponse() { Status = 200, Code = 0, Count = folders.Count, Folders = folders });
+                //var sz = JsonConvert.SerializeObject(messages);
+                return StatusCode(200, new EnvelopesResponse() { Status = 200, Code = 0, Count = messages.Count, Envelopes = messages.ToList()});
+            }
+            catch (Exception e)
+            {
+                var statusCode = 500;
+                return StatusCode(statusCode, new ErrorResponse() { Status = 500, DeveloperMessage = e.Source, UserMessage = e.Message, MoreInfo = e.HelpLink, ErrorCode = e.HResult });
+            }
+        }
     }
 }

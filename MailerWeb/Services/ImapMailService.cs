@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
+using System.Text;
 using System.Threading.Tasks;
+using MailerWeb.Models;
 using MailKit;
 using MailKit.Net.Imap;
 using Microsoft.Extensions.Caching.Memory;
+using MimeKit;
 using MailFolder = MailerWeb.Models.MailFolder;
 
 namespace MailerWeb.Services
@@ -25,8 +29,7 @@ namespace MailerWeb.Services
 
         public async Task<List<MailFolder>> GetFoldersAsync(string token)
         {
-            ImapClient client;
-            if (!_memoryCache.TryGetValue($"{token}:imap", out client))
+            if (!_memoryCache.TryGetValue($"{token}:imap", out ImapClient client))
             {
                 client = await _authService.ImapRefresh(token);
             }
@@ -45,6 +48,46 @@ namespace MailerWeb.Services
             return shortFoldersList;
         }
 
+        public async Task<IList<MailEnvelope>> GetFolderMessagesAsync(string token, int min, int max, string folderName)
+        {
+            if (!_memoryCache.TryGetValue($"{token}:imap", out ImapClient client))
+            {
+                client = await _authService.ImapRefresh(token);
+            }
 
+            _imapService.Client = client;
+            var folder = await _imapService.GetMailFolderByNameAsync(folderName);
+            var mailList = await _imapService.GetMessagesRangeAsync(min, max, folder, MessageSummaryItems.All);
+            var mailEnvelops = new List<MailEnvelope>();
+            foreach (var item in mailList)
+            {
+                var envelope = new MailEnvelope()
+                {
+                    Index = item.Index,
+                    MessageId = item.Envelope.MessageId,
+                    Date = item.Envelope.Date,
+                    From = new List<Address>(),
+                    To = new List<Address>(),
+                    Subject = item.Envelope.Subject,
+                    Flags = item.Flags,
+                    IsSeen = item.Flags != null && (item.Flags.Value & MessageFlags.Seen) != 0,
+                    IsAnswered = item.Flags != null && (item.Flags.Value & MessageFlags.Answered) != 0,
+                    IsFlagged = item.Flags != null && (item.Flags.Value & MessageFlags.Flagged) != 0,
+                };
+                
+                foreach (var fromItem in item.Envelope.From)
+                {
+                    envelope.From.Add(new Address() { Name = ((MailboxAddress)fromItem).Name, Email = ((MailboxAddress)fromItem).Address });
+                }
+
+                foreach (var toItem in item.Envelope.To)
+                {
+                    envelope.To.Add(new Address() { Name = toItem.Name, Email = ((MailboxAddress)toItem).Address});
+                }
+
+                mailEnvelops.Add(envelope);
+            }
+            return mailEnvelops;
+        }
     }
 }
