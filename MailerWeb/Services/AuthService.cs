@@ -8,6 +8,7 @@ using System.Security.Principal;
 using System.Threading.Tasks;
 using MailerWeb.Models;
 using MailerWeb.Models.Repository;
+using MailerWeb.Models.Requests;
 using MailerWeb.Security;
 using MailKit.Net.Imap;
 using Microsoft.Extensions.Caching.Memory;

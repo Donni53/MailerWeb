@@ -59,7 +59,7 @@ namespace MailerWeb
                 app.UseHsts();
             }
 
-            app.ConfigureExceptionHandler();
+            app.ConfigureCustomExceptionMiddleware();
             app.UseHttpsRedirection();
             app.UseMvc();
         }

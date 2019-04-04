@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MailerWeb.Models;
+using MailerWeb.Models.Requests;
 
 namespace MailerWeb.Services
 {
