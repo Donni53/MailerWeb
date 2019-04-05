@@ -4,7 +4,9 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using MailerWeb.Models;
+using MailerWeb.Models.Exceptions;
 using MailerWeb.Models.Responses;
+using MailKit;
 using MailKit.Security;
 using Microsoft.AspNetCore.Http;
 
@@ -33,8 +35,31 @@ namespace MailerWeb.CustomExceptionMiddleware
         private static Task HandleExceptionAsync(HttpContext context, Exception e)
         {
             var statusCode = 500;
-            if (e is AuthenticationException)
-                statusCode = 401;
+            switch (e)
+            {
+                case AuthenticationException _:
+                case NullUserException _:
+                case ServiceNotConnectedException _:
+                case ServiceNotAuthenticatedException _:
+                    statusCode = 401;
+                    break;
+                case ConnectionDataException _:
+                case InvalidFlagException _:
+                case FolderNotFoundException _:
+                case MessageNotFoundException _:
+                case ArgumentException _:
+                case IndexOutOfRangeException _:
+                    statusCode = 400;
+                    break;
+            }
+
+            switch (e)
+            {
+                case ArgumentNullException _:
+                case ArgumentOutOfRangeException _:
+                    statusCode = 400;
+                    break;
+            }
 
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = statusCode;

@@ -20,12 +20,18 @@ namespace MailerWeb.Controllers
     {
 
         private readonly AuthService _authService;
-        private readonly ImapMailService _imapMailService;
+        private readonly IImapMailService _imapMailService;
 
-        public ImapController(AuthService authService, ImapMailService imapMailService)
+        public ImapController(AuthService authService, IImapMailService imapMailService)
         {
             _authService = authService;
             _imapMailService = imapMailService;
+        }
+
+        [HttpGet]
+        public IActionResult Get()
+        {
+            return StatusCode(404);
         }
 
         [HttpPost]

@@ -16,7 +16,7 @@ namespace MailerWeb.Services
 
         Task AuthenticateAsync(string login, string password);
 
-        Task SendEmail(MimeMessage message, MailboxAddress sender, IList<MailboxAddress> recipients);
-        Task SendEmail(MimeMessage message);
+        Task SendEmailAsync(MimeMessage message, MailboxAddress sender, IList<MailboxAddress> recipients);
+        Task SendEmailAsync(MimeMessage message);
     }
 }

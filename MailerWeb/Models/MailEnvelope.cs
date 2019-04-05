@@ -7,13 +7,6 @@ using MimeKit;
 
 namespace MailerWeb.Models
 {
-    public class Address
-    {
-        public string Email { get; set; }
-        public string Name { get; set; }
-    }
-
-
     public class MailEnvelope
     {
         public int Index { get; set; }
@@ -26,5 +19,19 @@ namespace MailerWeb.Models
         public bool IsFlagged { get; set; }
         public bool IsAnswered { get; set; }
         public MessageFlags? Flags { get; set; }
+
+        public MailEnvelope(IMessageSummary messageSummary)
+        {
+            Index = messageSummary.Index;
+            MessageId = messageSummary.Envelope.MessageId;
+            Date = messageSummary.Envelope.Date;
+            From = new List<Address>();
+            To = new List<Address>();
+            Subject = messageSummary.Envelope.Subject;
+            Flags = messageSummary.Flags;
+            IsSeen = messageSummary.Flags != null && (messageSummary.Flags.Value & MessageFlags.Seen) != 0;
+            IsAnswered = messageSummary.Flags != null && (messageSummary.Flags.Value & MessageFlags.Answered) != 0;
+            IsFlagged = messageSummary.Flags != null && (messageSummary.Flags.Value & MessageFlags.Flagged) != 0;
+        }
     }
 }

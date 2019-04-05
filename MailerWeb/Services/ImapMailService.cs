@@ -5,6 +5,7 @@ using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 using MailerWeb.Models;
+using MailerWeb.Models.Exceptions;
 using MailKit;
 using MailKit.Net.Imap;
 using Microsoft.Extensions.Caching.Memory;
@@ -13,7 +14,7 @@ using MailFolder = MailerWeb.Models.MailFolder;
 
 namespace MailerWeb.Services
 {
-    public class ImapMailService// : IImapMailService
+    public class ImapMailService : IImapMailService
     {
         private readonly IImapService _imapService;
         private readonly IMemoryCache _memoryCache;
@@ -26,7 +27,7 @@ namespace MailerWeb.Services
             _authService = authService;
         }
 
-        public async Task RefreshImap(string token)
+        public async Task RefreshImapAsync(string token)
         {
             if (!_memoryCache.TryGetValue($"{token}:imap", out ImapClient client))
             {
@@ -39,7 +40,7 @@ namespace MailerWeb.Services
 
         public async Task<List<MailFolder>> GetFoldersAsync(string token)
         {
-            await RefreshImap(token);
+            await RefreshImapAsync(token);
 
             var foldersList = await _imapService.GetFoldersAsync();
 
@@ -48,7 +49,7 @@ namespace MailerWeb.Services
             foreach (var item in foldersList)
             {
                 await _imapService.UpdateFolder(item);
-                shortFoldersList.Add(new MailFolder() { Id = item.Id, Name = item.FullName, Count = item.Count, Recent = item.Recent, Unread = item.Unread, Size = item.Size});
+                shortFoldersList.Add(new MailFolder(item));
             }
 
             return shortFoldersList;
@@ -56,25 +57,13 @@ namespace MailerWeb.Services
 
         public async Task<IList<MailEnvelope>> GetFolderMessagesAsync(string token, int min, int max, string folderName)
         {
-            await RefreshImap(token);
+            await RefreshImapAsync(token);
             var folder = await _imapService.GetMailFolderByNameAsync(folderName);
             var mailList = await _imapService.GetMessagesRangeAsync(min, max, folder, MessageSummaryItems.All);
             var mailEnvelops = new List<MailEnvelope>();
             foreach (var item in mailList)
             {
-                var envelope = new MailEnvelope()
-                {
-                    Index = item.Index,
-                    MessageId = item.Envelope.MessageId,
-                    Date = item.Envelope.Date,
-                    From = new List<Address>(),
-                    To = new List<Address>(),
-                    Subject = item.Envelope.Subject,
-                    Flags = item.Flags,
-                    IsSeen = item.Flags != null && (item.Flags.Value & MessageFlags.Seen) != 0,
-                    IsAnswered = item.Flags != null && (item.Flags.Value & MessageFlags.Answered) != 0,
-                    IsFlagged = item.Flags != null && (item.Flags.Value & MessageFlags.Flagged) != 0,
-                };
+                var envelope = new MailEnvelope(item);
                 
                 foreach (var fromItem in item.Envelope.From)
                 {
@@ -93,7 +82,7 @@ namespace MailerWeb.Services
 
         public async Task<MimeMessage> GetMessageBodyAsync(string token, string folderName, int messageIndex)
         {
-            await RefreshImap(token);
+            await RefreshImapAsync(token);
             var folder = await _imapService.GetMailFolderByNameAsync(folderName);
             await _imapService.OpenFolder(folder);
             var message = await folder.GetMessageAsync(index: messageIndex);
@@ -102,10 +91,8 @@ namespace MailerWeb.Services
 
         public async Task<List<MailFolder>> CreateFolderAsync(string token, string displayName, bool allFolders)
         {
-            await RefreshImap(token);
+            await RefreshImapAsync(token);
             var newFolder = await _imapService.CreateFolderAsync(displayName);
-
-            //TODO Convert in procedure
 
             IList<IMailFolder> foldersList;
 
@@ -119,7 +106,7 @@ namespace MailerWeb.Services
             foreach (var item in foldersList)
             {
                 await _imapService.UpdateFolder(item);
-                shortFoldersList.Add(new MailFolder() { Id = item.Id, Name = item.FullName, Count = item.Count, Recent = item.Recent, Unread = item.Unread, Size = item.Size });
+                shortFoldersList.Add(new MailFolder(item));
             }
 
             return shortFoldersList;
@@ -127,7 +114,7 @@ namespace MailerWeb.Services
 
         public async Task<List<MailFolder>> CreateSubfolderAsync(string token, string folderName, string displayName, bool allFolders)
         {
-            await RefreshImap(token);
+            await RefreshImapAsync(token);
             var folder = await _imapService.GetMailFolderByNameAsync(folderName);
             var newFolder = await _imapService.CreateSubfolderAsync(folder, displayName);
             IList<IMailFolder> foldersList;
@@ -142,7 +129,7 @@ namespace MailerWeb.Services
             foreach (var item in foldersList)
             {
                 await _imapService.UpdateFolder(item);
-                shortFoldersList.Add(new MailFolder() { Id = item.Id, Name = item.FullName, Count = item.Count, Recent = item.Recent, Unread = item.Unread, Size = item.Size });
+                shortFoldersList.Add(new MailFolder(item));
             }
 
             return shortFoldersList;
@@ -150,7 +137,7 @@ namespace MailerWeb.Services
 
         public async Task<List<MailFolder>> DeleteFolderAsync(string token, string folderName, bool allFolders)
         {
-            await RefreshImap(token);
+            await RefreshImapAsync(token);
             var folder = await _imapService.GetMailFolderByNameAsync(folderName);
             await _imapService.DeleteFolderAsync(folder);
 
@@ -166,14 +153,14 @@ namespace MailerWeb.Services
             foreach (var item in foldersList)
             {
                 await _imapService.UpdateFolder(item);
-                shortFoldersList.Add(new MailFolder() { Id = item.Id, Name = item.FullName, Count = item.Count, Recent = item.Recent, Unread = item.Unread, Size = item.Size });
+                shortFoldersList.Add(new MailFolder(item));
             }
             return shortFoldersList;
         }
 
         public async Task MoveMessagesAsync(string token, IList<int> indexList, string folderName, string destFolderName)
         {
-            await RefreshImap(token);
+            await RefreshImapAsync(token);
             var folder = await _imapService.GetMailFolderByNameAsync(folderName);
             var destFolder = await _imapService.GetMailFolderByNameAsync(destFolderName);
             await _imapService.MoveMessages(indexList, folder, destFolder);
@@ -181,8 +168,7 @@ namespace MailerWeb.Services
 
         public async Task MarkMessages(string token, IList<int> indexList, string folderName, string flag)
         {
-            //TODO looks bad
-            await RefreshImap(token);
+            await RefreshImapAsync(token);
             var folder = await _imapService.GetMailFolderByNameAsync(folderName);
             switch (flag.ToLower())
             {
@@ -198,14 +184,15 @@ namespace MailerWeb.Services
                     break;
                 case "unanswered": await _imapService.MarkUnanswered(indexList, folder);
                     break;
-                default: throw new Exception("Flag does not exist"); //TODO Custom Exception
+                default: throw new InvalidFlagException();
             }
         }
 
         public async Task DeleteMessagesAsync(string token, IList<int> indexList, string folderName)
         {
-            await RefreshImap(token);
+            await RefreshImapAsync(token);
             var folder = await _imapService.GetMailFolderByNameAsync(folderName);
+            await folder.OpenAsync(FolderAccess.ReadWrite);
             await _imapService.DeleteMessages(indexList, folder);
         }
     }

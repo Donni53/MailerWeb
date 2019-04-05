@@ -7,10 +7,12 @@ using System.Security.Cryptography;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using MailerWeb.Models;
+using MailerWeb.Models.Exceptions;
 using MailerWeb.Models.Repository;
 using MailerWeb.Models.Requests;
 using MailerWeb.Security;
 using MailKit.Net.Imap;
+using MailKit.Net.Smtp;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace MailerWeb.Services
@@ -33,8 +35,6 @@ namespace MailerWeb.Services
             _dataBaseContext = dataBaseContext;
             _connectionDataRepository = connectionDataRepository;
         }
-
-
 
         public async Task<string> SignUpAsync(User user)
         {
@@ -111,7 +111,7 @@ namespace MailerWeb.Services
                 var mailAddress = new MailAddress(signInCredentials.Login);
                 var connectionConfiguration = _connectionDataRepository.GetByDomain(mailAddress.Host);
                 if (connectionConfiguration == null)
-                    throw new Exception("Missed connection data"); //TODO replace with custom exception
+                    throw new ConnectionDataException();
                 var user = new User() { Login = signInCredentials.Login, Password = signInCredentials.Password, ConnectionSettings = connectionConfiguration, Settings = new Settings() };
                 var token = await SignUpAsync(user);
                 return token;
@@ -128,7 +128,7 @@ namespace MailerWeb.Services
             var vector = enumerable.FirstOrDefault(e => e.Type == "IV")?.Value;
             var dbUser = _dataRepository.GetByLogin(login);
             if (dbUser == null)
-                throw new Exception("Can't find user");
+                throw new NullUserException();
             var password = RijndaelManager.DecryptStringFromBytes(Convert.FromBase64String(dbUser.Password), Convert.FromBase64String(key), Convert.FromBase64String(vector));
             _imapService.AcceptAllSslCertificates(true);
             await _imapService.ConnectAsync(dbUser.ConnectionSettings.ImapConfiguration.Address, dbUser.ConnectionSettings.ImapConfiguration.Port, true);
@@ -145,5 +145,35 @@ namespace MailerWeb.Services
 
             return _imapService.Client;
         }
+
+
+
+        public async Task<MailKit.Net.Smtp.SmtpClient> SmtpRefresh(string token)
+        {
+            var claims = Jwt.DecodeToken(token);
+            var enumerable = claims as Claim[] ?? claims.ToArray();
+            var login = enumerable.FirstOrDefault(e => e.Type == "Login")?.Value;
+            var key = enumerable.FirstOrDefault(e => e.Type == "Key")?.Value;
+            var vector = enumerable.FirstOrDefault(e => e.Type == "IV")?.Value;
+            var dbUser = _dataRepository.GetByLogin(login);
+            if (dbUser == null)
+                throw new NullUserException();
+            var password = RijndaelManager.DecryptStringFromBytes(Convert.FromBase64String(dbUser.Password), Convert.FromBase64String(key), Convert.FromBase64String(vector));
+            _smtpService.AcceptAllSslCertificates(true);
+            await _smtpService.ConnectAsync(dbUser.ConnectionSettings.SmtpConfiguration.Address, dbUser.ConnectionSettings.SmtpConfiguration.Port, true);
+            await _smtpService.AuthenticateAsync(dbUser.Login, password);
+
+
+            var options = new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(600),
+                SlidingExpiration = TimeSpan.FromSeconds(600)
+            };
+
+            _memoryCache.Set($"{token}:smtp", _smtpService.Client, options);
+
+            return _smtpService.Client;
+        }
+
     }
 }

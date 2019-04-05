@@ -37,12 +37,12 @@ namespace MailerWeb.Services
             await _client.AuthenticateAsync(login, password);
         }
 
-        public async Task SendEmail(MimeMessage message, MailboxAddress sender, IList<MailboxAddress> recipients)
+        public async Task SendEmailAsync(MimeMessage message, MailboxAddress sender, IList<MailboxAddress> recipients)
         {
             await _client.SendAsync(message, sender, recipients);
         }
 
-        public async Task SendEmail(MimeMessage message)
+        public async Task SendEmailAsync(MimeMessage message)
         {
             await _client.SendAsync(message);
         }
