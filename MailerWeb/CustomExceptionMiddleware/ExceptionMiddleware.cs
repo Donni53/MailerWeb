@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
-using MailerWeb.Models;
 using MailerWeb.Models.Exceptions;
 using MailerWeb.Models.Responses;
 using MailKit;
@@ -15,6 +11,7 @@ namespace MailerWeb.CustomExceptionMiddleware
     public class ExceptionMiddleware
     {
         private readonly RequestDelegate _next;
+
         public ExceptionMiddleware(RequestDelegate next)
         {
             _next = next;
@@ -65,7 +62,7 @@ namespace MailerWeb.CustomExceptionMiddleware
             context.Response.StatusCode = statusCode;
 
             return context.Response.WriteAsync(
-                new ErrorResponse()
+                new ErrorResponse
                 {
                     Status = statusCode,
                     DeveloperMessage = e.Source,
@@ -73,8 +70,7 @@ namespace MailerWeb.CustomExceptionMiddleware
                     MoreInfo = e.HelpLink,
                     ErrorCode = e.HResult
                 }.ToString()
-                );
+            );
         }
-
     }
 }

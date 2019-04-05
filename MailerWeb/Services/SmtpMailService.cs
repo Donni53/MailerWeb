@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using MailerWeb.Models;
 using MailKit.Net.Smtp;
@@ -12,9 +10,9 @@ namespace MailerWeb.Services
 {
     public class SmtpMailService : ISmtpMailService
     {
-        private readonly ISmtpService _smtpService;
-        private readonly IMemoryCache _memoryCache;
         private readonly AuthService _authService;
+        private readonly IMemoryCache _memoryCache;
+        private readonly ISmtpService _smtpService;
 
         public SmtpMailService(ISmtpService smtpService, IMemoryCache memoryCache, AuthService authService)
         {
@@ -27,9 +25,7 @@ namespace MailerWeb.Services
         public async Task RefreshSmtpAsync(string token)
         {
             if (!_memoryCache.TryGetValue($"{token}:smtp", out SmtpClient client))
-            {
                 client = await _authService.SmtpRefresh(token);
-            }
 
             _smtpService.Client = client;
         }
@@ -39,10 +35,7 @@ namespace MailerWeb.Services
             await RefreshSmtpAsync(token);
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(from.Name, from.Email));
-            foreach (var item in to)
-            {
-                message.To.Add(new MailboxAddress(item.Name, item.Email));
-            }
+            foreach (var item in to) message.To.Add(new MailboxAddress(item.Name, item.Email));
             message.Subject = subject;
 
             message.Body = new TextPart(TextFormat.Html)
@@ -51,8 +44,6 @@ namespace MailerWeb.Services
             };
 
             await _smtpService.SendEmailAsync(message);
-
         }
-
     }
 }

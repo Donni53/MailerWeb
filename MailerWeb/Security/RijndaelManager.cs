@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
 
 namespace MailerWeb.Security
 {
@@ -21,25 +18,25 @@ namespace MailerWeb.Security
             byte[] encrypted;
             // Create an RijndaelManaged object
             // with the specified key and IV.
-            using (RijndaelManaged rijAlg = new RijndaelManaged())
+            using (var rijAlg = new RijndaelManaged())
             {
                 rijAlg.Key = Key;
                 rijAlg.IV = IV;
 
                 // Create an encryptor to perform the stream transform.
-                ICryptoTransform encryptor = rijAlg.CreateEncryptor(rijAlg.Key, rijAlg.IV);
+                var encryptor = rijAlg.CreateEncryptor(rijAlg.Key, rijAlg.IV);
 
                 // Create the streams used for encryption.
-                using (MemoryStream msEncrypt = new MemoryStream())
+                using (var msEncrypt = new MemoryStream())
                 {
-                    using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                    using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
                     {
-                        using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                        using (var swEncrypt = new StreamWriter(csEncrypt))
                         {
-
                             //Write all data to the stream.
                             swEncrypt.Write(plainText);
                         }
+
                         encrypted = msEncrypt.ToArray();
                     }
                 }
@@ -48,7 +45,6 @@ namespace MailerWeb.Security
 
             // Return the encrypted bytes from the memory stream.
             return encrypted;
-
         }
 
         public static string DecryptStringFromBytes(byte[] cipherText, byte[] Key, byte[] IV)
@@ -67,20 +63,20 @@ namespace MailerWeb.Security
 
             // Create an RijndaelManaged object
             // with the specified key and IV.
-            using (RijndaelManaged rijAlg = new RijndaelManaged())
+            using (var rijAlg = new RijndaelManaged())
             {
                 rijAlg.Key = Key;
                 rijAlg.IV = IV;
 
                 // Create a decryptor to perform the stream transform.
-                ICryptoTransform decryptor = rijAlg.CreateDecryptor(rijAlg.Key, rijAlg.IV);
+                var decryptor = rijAlg.CreateDecryptor(rijAlg.Key, rijAlg.IV);
 
                 // Create the streams used for decryption.
-                using (MemoryStream msDecrypt = new MemoryStream(cipherText))
+                using (var msDecrypt = new MemoryStream(cipherText))
                 {
-                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                    using (var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
                     {
-                        using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                        using (var srDecrypt = new StreamReader(csDecrypt))
                         {
                             // Read the decrypted bytes from the decrypting stream
                             // and place them in a string.
@@ -88,7 +84,6 @@ namespace MailerWeb.Security
                         }
                     }
                 }
-
             }
 
             return plaintext;

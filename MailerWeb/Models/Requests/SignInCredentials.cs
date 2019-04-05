@@ -4,9 +4,8 @@ namespace MailerWeb.Models.Requests
 {
     public class SignInCredentials
     {
-        [Required]
-        public string Login { get; set; }
-        [Required]
-        public string Password { get; set; }
+        [Required] public string Login { get; set; }
+
+        [Required] public string Password { get; set; }
     }
 }

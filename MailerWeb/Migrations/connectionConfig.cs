@@ -8,81 +8,82 @@ namespace MailerWeb.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Users_ImapConfigurations_ImapSettingsId",
-                table: "Users");
+                "FK_Users_ImapConfigurations_ImapSettingsId",
+                "Users");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Users_Settings_SettingsId",
-                table: "Users");
+                "FK_Users_Settings_SettingsId",
+                "Users");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Users_SmtpConfigurations_SmtpSettingsId",
-                table: "Users");
+                "FK_Users_SmtpConfigurations_SmtpSettingsId",
+                "Users");
 
             migrationBuilder.DropIndex(
-                name: "IX_Users_ImapSettingsId",
-                table: "Users");
+                "IX_Users_ImapSettingsId",
+                "Users");
 
             migrationBuilder.DropPrimaryKey(
-                name: "PK_SmtpConfigurations",
-                table: "SmtpConfigurations");
+                "PK_SmtpConfigurations",
+                "SmtpConfigurations");
 
             migrationBuilder.DropPrimaryKey(
-                name: "PK_ImapConfigurations",
-                table: "ImapConfigurations");
+                "PK_ImapConfigurations",
+                "ImapConfigurations");
 
             migrationBuilder.DropColumn(
-                name: "ImapSettingsId",
-                table: "Users");
+                "ImapSettingsId",
+                "Users");
 
             migrationBuilder.DropColumn(
-                name: "Ssl",
-                table: "SmtpConfigurations");
+                "Ssl",
+                "SmtpConfigurations");
 
             migrationBuilder.DropColumn(
-                name: "Ssl",
-                table: "ImapConfigurations");
+                "Ssl",
+                "ImapConfigurations");
 
             migrationBuilder.RenameTable(
-                name: "SmtpConfigurations",
+                "SmtpConfigurations",
                 newName: "SmtpConfiguration");
 
             migrationBuilder.RenameTable(
-                name: "ImapConfigurations",
+                "ImapConfigurations",
                 newName: "ImapConfiguration");
 
             migrationBuilder.RenameColumn(
-                name: "SmtpSettingsId",
-                table: "Users",
-                newName: "ConnectionSettingsId");
+                "SmtpSettingsId",
+                "Users",
+                "ConnectionSettingsId");
 
             migrationBuilder.RenameIndex(
-                name: "IX_Users_SmtpSettingsId",
+                "IX_Users_SmtpSettingsId",
                 table: "Users",
                 newName: "IX_Users_ConnectionSettingsId");
 
             migrationBuilder.AlterColumn<int>(
-                name: "SettingsId",
-                table: "Users",
+                "SettingsId",
+                "Users",
                 nullable: true,
                 oldClrType: typeof(int));
 
             migrationBuilder.AddPrimaryKey(
-                name: "PK_SmtpConfiguration",
-                table: "SmtpConfiguration",
-                column: "Id");
+                "PK_SmtpConfiguration",
+                "SmtpConfiguration",
+                "Id");
 
             migrationBuilder.AddPrimaryKey(
-                name: "PK_ImapConfiguration",
-                table: "ImapConfiguration",
-                column: "Id");
+                "PK_ImapConfiguration",
+                "ImapConfiguration",
+                "Id");
 
             migrationBuilder.CreateTable(
-                name: "ConnectionConfigurations",
-                columns: table => new
+                "ConnectionConfigurations",
+                table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy",
+                            SqlServerValueGenerationStrategy.IdentityColumn),
                     ImapConfigurationId = table.Column<int>(nullable: false),
                     SmtpConfigurationId = table.Column<int>(nullable: false)
                 },
@@ -90,25 +91,26 @@ namespace MailerWeb.Migrations
                 {
                     table.PrimaryKey("PK_ConnectionConfigurations", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ConnectionConfigurations_ImapConfiguration_ImapConfigurationId",
-                        column: x => x.ImapConfigurationId,
-                        principalTable: "ImapConfiguration",
-                        principalColumn: "Id",
+                        "FK_ConnectionConfigurations_ImapConfiguration_ImapConfigurationId",
+                        x => x.ImapConfigurationId,
+                        "ImapConfiguration",
+                        "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ConnectionConfigurations_SmtpConfiguration_SmtpConfigurationId",
-                        column: x => x.SmtpConfigurationId,
-                        principalTable: "SmtpConfiguration",
-                        principalColumn: "Id",
+                        "FK_ConnectionConfigurations_SmtpConfiguration_SmtpConfigurationId",
+                        x => x.SmtpConfigurationId,
+                        "SmtpConfiguration",
+                        "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "EmailDomain",
-                columns: table => new
+                "EmailDomain",
+                table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy",
+                            SqlServerValueGenerationStrategy.IdentityColumn),
                     Domain = table.Column<string>(nullable: false),
                     ConnectionConfigurationId = table.Column<int>(nullable: true)
                 },
@@ -116,41 +118,41 @@ namespace MailerWeb.Migrations
                 {
                     table.PrimaryKey("PK_EmailDomain", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_EmailDomain_ConnectionConfigurations_ConnectionConfigurationId",
-                        column: x => x.ConnectionConfigurationId,
-                        principalTable: "ConnectionConfigurations",
-                        principalColumn: "Id",
+                        "FK_EmailDomain_ConnectionConfigurations_ConnectionConfigurationId",
+                        x => x.ConnectionConfigurationId,
+                        "ConnectionConfigurations",
+                        "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ConnectionConfigurations_ImapConfigurationId",
-                table: "ConnectionConfigurations",
-                column: "ImapConfigurationId");
+                "IX_ConnectionConfigurations_ImapConfigurationId",
+                "ConnectionConfigurations",
+                "ImapConfigurationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ConnectionConfigurations_SmtpConfigurationId",
-                table: "ConnectionConfigurations",
-                column: "SmtpConfigurationId");
+                "IX_ConnectionConfigurations_SmtpConfigurationId",
+                "ConnectionConfigurations",
+                "SmtpConfigurationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EmailDomain_ConnectionConfigurationId",
-                table: "EmailDomain",
-                column: "ConnectionConfigurationId");
+                "IX_EmailDomain_ConnectionConfigurationId",
+                "EmailDomain",
+                "ConnectionConfigurationId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Users_ConnectionConfigurations_ConnectionSettingsId",
-                table: "Users",
-                column: "ConnectionSettingsId",
-                principalTable: "ConnectionConfigurations",
+                "FK_Users_ConnectionConfigurations_ConnectionSettingsId",
+                "Users",
+                "ConnectionSettingsId",
+                "ConnectionConfigurations",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Users_Settings_SettingsId",
-                table: "Users",
-                column: "SettingsId",
-                principalTable: "Settings",
+                "FK_Users_Settings_SettingsId",
+                "Users",
+                "SettingsId",
+                "Settings",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
         }
@@ -158,106 +160,106 @@ namespace MailerWeb.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Users_ConnectionConfigurations_ConnectionSettingsId",
-                table: "Users");
+                "FK_Users_ConnectionConfigurations_ConnectionSettingsId",
+                "Users");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Users_Settings_SettingsId",
-                table: "Users");
+                "FK_Users_Settings_SettingsId",
+                "Users");
 
             migrationBuilder.DropTable(
-                name: "EmailDomain");
+                "EmailDomain");
 
             migrationBuilder.DropTable(
-                name: "ConnectionConfigurations");
+                "ConnectionConfigurations");
 
             migrationBuilder.DropPrimaryKey(
-                name: "PK_SmtpConfiguration",
-                table: "SmtpConfiguration");
+                "PK_SmtpConfiguration",
+                "SmtpConfiguration");
 
             migrationBuilder.DropPrimaryKey(
-                name: "PK_ImapConfiguration",
-                table: "ImapConfiguration");
+                "PK_ImapConfiguration",
+                "ImapConfiguration");
 
             migrationBuilder.RenameTable(
-                name: "SmtpConfiguration",
+                "SmtpConfiguration",
                 newName: "SmtpConfigurations");
 
             migrationBuilder.RenameTable(
-                name: "ImapConfiguration",
+                "ImapConfiguration",
                 newName: "ImapConfigurations");
 
             migrationBuilder.RenameColumn(
-                name: "ConnectionSettingsId",
-                table: "Users",
-                newName: "SmtpSettingsId");
+                "ConnectionSettingsId",
+                "Users",
+                "SmtpSettingsId");
 
             migrationBuilder.RenameIndex(
-                name: "IX_Users_ConnectionSettingsId",
+                "IX_Users_ConnectionSettingsId",
                 table: "Users",
                 newName: "IX_Users_SmtpSettingsId");
 
             migrationBuilder.AlterColumn<int>(
-                name: "SettingsId",
-                table: "Users",
+                "SettingsId",
+                "Users",
                 nullable: false,
                 oldClrType: typeof(int),
                 oldNullable: true);
 
             migrationBuilder.AddColumn<int>(
-                name: "ImapSettingsId",
-                table: "Users",
+                "ImapSettingsId",
+                "Users",
                 nullable: false,
                 defaultValue: 0);
 
             migrationBuilder.AddColumn<bool>(
-                name: "Ssl",
-                table: "SmtpConfigurations",
+                "Ssl",
+                "SmtpConfigurations",
                 nullable: false,
                 defaultValue: false);
 
             migrationBuilder.AddColumn<bool>(
-                name: "Ssl",
-                table: "ImapConfigurations",
+                "Ssl",
+                "ImapConfigurations",
                 nullable: false,
                 defaultValue: false);
 
             migrationBuilder.AddPrimaryKey(
-                name: "PK_SmtpConfigurations",
-                table: "SmtpConfigurations",
-                column: "Id");
+                "PK_SmtpConfigurations",
+                "SmtpConfigurations",
+                "Id");
 
             migrationBuilder.AddPrimaryKey(
-                name: "PK_ImapConfigurations",
-                table: "ImapConfigurations",
-                column: "Id");
+                "PK_ImapConfigurations",
+                "ImapConfigurations",
+                "Id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_ImapSettingsId",
-                table: "Users",
-                column: "ImapSettingsId");
+                "IX_Users_ImapSettingsId",
+                "Users",
+                "ImapSettingsId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Users_ImapConfigurations_ImapSettingsId",
-                table: "Users",
-                column: "ImapSettingsId",
-                principalTable: "ImapConfigurations",
+                "FK_Users_ImapConfigurations_ImapSettingsId",
+                "Users",
+                "ImapSettingsId",
+                "ImapConfigurations",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Users_Settings_SettingsId",
-                table: "Users",
-                column: "SettingsId",
-                principalTable: "Settings",
+                "FK_Users_Settings_SettingsId",
+                "Users",
+                "SettingsId",
+                "Settings",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Users_SmtpConfigurations_SmtpSettingsId",
-                table: "Users",
-                column: "SmtpSettingsId",
-                principalTable: "SmtpConfigurations",
+                "FK_Users_SmtpConfigurations_SmtpSettingsId",
+                "Users",
+                "SmtpSettingsId",
+                "SmtpConfigurations",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
         }

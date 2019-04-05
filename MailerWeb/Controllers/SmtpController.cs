@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MailerWeb.Models.Requests;
 using MailerWeb.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MailerWeb.Controllers
@@ -34,6 +30,5 @@ namespace MailerWeb.Controllers
             await _smtpMailService.SendEmailAsync(data.Token, data.From, data.To, data.Subject, data.HtmlBody);
             return StatusCode(204);
         }
-
     }
 }

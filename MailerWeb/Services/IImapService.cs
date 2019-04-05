@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using MailKit;
 using MailKit.Net.Imap;
@@ -28,7 +26,8 @@ namespace MailerWeb.Services
 
         Task DeleteFolderAsync(IMailFolder folder);
 
-        Task<IList<IMessageSummary>> GetMessagesRangeAsync(int min, int max, IMailFolder folder, MessageSummaryItems items);
+        Task<IList<IMessageSummary>> GetMessagesRangeAsync(int min, int max, IMailFolder folder,
+            MessageSummaryItems items);
 
         Task MoveMessages(IList<int> indexList, IMailFolder folder, IMailFolder destFolder);
 

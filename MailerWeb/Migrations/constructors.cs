@@ -7,103 +7,103 @@ namespace MailerWeb.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Users_ImapConfigurations_ImapSettingsId",
-                table: "Users");
+                "FK_Users_ImapConfigurations_ImapSettingsId",
+                "Users");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Users_Settings_SettingsId",
-                table: "Users");
+                "FK_Users_Settings_SettingsId",
+                "Users");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Users_SmtpConfigurations_SmtpSettingsId",
-                table: "Users");
+                "FK_Users_SmtpConfigurations_SmtpSettingsId",
+                "Users");
 
             migrationBuilder.AlterColumn<int>(
-                name: "SmtpSettingsId",
-                table: "Users",
+                "SmtpSettingsId",
+                "Users",
                 nullable: false,
                 oldClrType: typeof(int),
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<int>(
-                name: "SettingsId",
-                table: "Users",
+                "SettingsId",
+                "Users",
                 nullable: false,
                 oldClrType: typeof(int),
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
-                name: "Password",
-                table: "Users",
+                "Password",
+                "Users",
                 nullable: false,
                 oldClrType: typeof(string),
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
-                name: "Login",
-                table: "Users",
+                "Login",
+                "Users",
                 nullable: false,
                 oldClrType: typeof(string),
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<int>(
-                name: "ImapSettingsId",
-                table: "Users",
+                "ImapSettingsId",
+                "Users",
                 nullable: false,
                 oldClrType: typeof(int),
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
-                name: "Address",
-                table: "SmtpConfigurations",
+                "Address",
+                "SmtpConfigurations",
                 nullable: false,
                 oldClrType: typeof(string),
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
-                name: "SignatureText",
-                table: "Signature",
+                "SignatureText",
+                "Signature",
                 maxLength: 1000,
                 nullable: false,
                 oldClrType: typeof(string),
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
-                name: "Name",
-                table: "Signature",
+                "Name",
+                "Signature",
                 maxLength: 100,
                 nullable: false,
                 oldClrType: typeof(string),
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
-                name: "Address",
-                table: "ImapConfigurations",
+                "Address",
+                "ImapConfigurations",
                 nullable: false,
                 oldClrType: typeof(string),
                 oldNullable: true);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Users_ImapConfigurations_ImapSettingsId",
-                table: "Users",
-                column: "ImapSettingsId",
-                principalTable: "ImapConfigurations",
+                "FK_Users_ImapConfigurations_ImapSettingsId",
+                "Users",
+                "ImapSettingsId",
+                "ImapConfigurations",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Users_Settings_SettingsId",
-                table: "Users",
-                column: "SettingsId",
-                principalTable: "Settings",
+                "FK_Users_Settings_SettingsId",
+                "Users",
+                "SettingsId",
+                "Settings",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Users_SmtpConfigurations_SmtpSettingsId",
-                table: "Users",
-                column: "SmtpSettingsId",
-                principalTable: "SmtpConfigurations",
+                "FK_Users_SmtpConfigurations_SmtpSettingsId",
+                "Users",
+                "SmtpSettingsId",
+                "SmtpConfigurations",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
         }
@@ -111,94 +111,94 @@ namespace MailerWeb.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Users_ImapConfigurations_ImapSettingsId",
-                table: "Users");
+                "FK_Users_ImapConfigurations_ImapSettingsId",
+                "Users");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Users_Settings_SettingsId",
-                table: "Users");
+                "FK_Users_Settings_SettingsId",
+                "Users");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Users_SmtpConfigurations_SmtpSettingsId",
-                table: "Users");
+                "FK_Users_SmtpConfigurations_SmtpSettingsId",
+                "Users");
 
             migrationBuilder.AlterColumn<int>(
-                name: "SmtpSettingsId",
-                table: "Users",
+                "SmtpSettingsId",
+                "Users",
                 nullable: true,
                 oldClrType: typeof(int));
 
             migrationBuilder.AlterColumn<int>(
-                name: "SettingsId",
-                table: "Users",
+                "SettingsId",
+                "Users",
                 nullable: true,
                 oldClrType: typeof(int));
 
             migrationBuilder.AlterColumn<string>(
-                name: "Password",
-                table: "Users",
+                "Password",
+                "Users",
                 nullable: true,
                 oldClrType: typeof(string));
 
             migrationBuilder.AlterColumn<string>(
-                name: "Login",
-                table: "Users",
+                "Login",
+                "Users",
                 nullable: true,
                 oldClrType: typeof(string));
 
             migrationBuilder.AlterColumn<int>(
-                name: "ImapSettingsId",
-                table: "Users",
+                "ImapSettingsId",
+                "Users",
                 nullable: true,
                 oldClrType: typeof(int));
 
             migrationBuilder.AlterColumn<string>(
-                name: "Address",
-                table: "SmtpConfigurations",
+                "Address",
+                "SmtpConfigurations",
                 nullable: true,
                 oldClrType: typeof(string));
 
             migrationBuilder.AlterColumn<string>(
-                name: "SignatureText",
-                table: "Signature",
+                "SignatureText",
+                "Signature",
                 nullable: true,
                 oldClrType: typeof(string),
                 oldMaxLength: 1000);
 
             migrationBuilder.AlterColumn<string>(
-                name: "Name",
-                table: "Signature",
+                "Name",
+                "Signature",
                 nullable: true,
                 oldClrType: typeof(string),
                 oldMaxLength: 100);
 
             migrationBuilder.AlterColumn<string>(
-                name: "Address",
-                table: "ImapConfigurations",
+                "Address",
+                "ImapConfigurations",
                 nullable: true,
                 oldClrType: typeof(string));
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Users_ImapConfigurations_ImapSettingsId",
-                table: "Users",
-                column: "ImapSettingsId",
-                principalTable: "ImapConfigurations",
+                "FK_Users_ImapConfigurations_ImapSettingsId",
+                "Users",
+                "ImapSettingsId",
+                "ImapConfigurations",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Users_Settings_SettingsId",
-                table: "Users",
-                column: "SettingsId",
-                principalTable: "Settings",
+                "FK_Users_Settings_SettingsId",
+                "Users",
+                "SettingsId",
+                "Settings",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Users_SmtpConfigurations_SmtpSettingsId",
-                table: "Users",
-                column: "SmtpSettingsId",
-                principalTable: "SmtpConfigurations",
+                "FK_Users_SmtpConfigurations_SmtpSettingsId",
+                "Users",
+                "SmtpSettingsId",
+                "SmtpConfigurations",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
         }

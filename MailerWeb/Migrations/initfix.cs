@@ -7,78 +7,78 @@ namespace MailerWeb.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Employees_ImapConfigurations_ImapSettingsId",
-                table: "Employees");
+                "FK_Employees_ImapConfigurations_ImapSettingsId",
+                "Employees");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Employees_Settings_SettingsId",
-                table: "Employees");
+                "FK_Employees_Settings_SettingsId",
+                "Employees");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Employees_SmtpConfigurations_SmtpSettingsId",
-                table: "Employees");
+                "FK_Employees_SmtpConfigurations_SmtpSettingsId",
+                "Employees");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Signature_Employees_UserId",
-                table: "Signature");
+                "FK_Signature_Employees_UserId",
+                "Signature");
 
             migrationBuilder.DropPrimaryKey(
-                name: "PK_Employees",
-                table: "Employees");
+                "PK_Employees",
+                "Employees");
 
             migrationBuilder.RenameTable(
-                name: "Employees",
+                "Employees",
                 newName: "Users");
 
             migrationBuilder.RenameIndex(
-                name: "IX_Employees_SmtpSettingsId",
+                "IX_Employees_SmtpSettingsId",
                 table: "Users",
                 newName: "IX_Users_SmtpSettingsId");
 
             migrationBuilder.RenameIndex(
-                name: "IX_Employees_SettingsId",
+                "IX_Employees_SettingsId",
                 table: "Users",
                 newName: "IX_Users_SettingsId");
 
             migrationBuilder.RenameIndex(
-                name: "IX_Employees_ImapSettingsId",
+                "IX_Employees_ImapSettingsId",
                 table: "Users",
                 newName: "IX_Users_ImapSettingsId");
 
             migrationBuilder.AddPrimaryKey(
-                name: "PK_Users",
-                table: "Users",
-                column: "Id");
+                "PK_Users",
+                "Users",
+                "Id");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Signature_Users_UserId",
-                table: "Signature",
-                column: "UserId",
-                principalTable: "Users",
+                "FK_Signature_Users_UserId",
+                "Signature",
+                "UserId",
+                "Users",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Users_ImapConfigurations_ImapSettingsId",
-                table: "Users",
-                column: "ImapSettingsId",
-                principalTable: "ImapConfigurations",
+                "FK_Users_ImapConfigurations_ImapSettingsId",
+                "Users",
+                "ImapSettingsId",
+                "ImapConfigurations",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Users_Settings_SettingsId",
-                table: "Users",
-                column: "SettingsId",
-                principalTable: "Settings",
+                "FK_Users_Settings_SettingsId",
+                "Users",
+                "SettingsId",
+                "Settings",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Users_SmtpConfigurations_SmtpSettingsId",
-                table: "Users",
-                column: "SmtpSettingsId",
-                principalTable: "SmtpConfigurations",
+                "FK_Users_SmtpConfigurations_SmtpSettingsId",
+                "Users",
+                "SmtpSettingsId",
+                "SmtpConfigurations",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
         }
@@ -86,78 +86,78 @@ namespace MailerWeb.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Signature_Users_UserId",
-                table: "Signature");
+                "FK_Signature_Users_UserId",
+                "Signature");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Users_ImapConfigurations_ImapSettingsId",
-                table: "Users");
+                "FK_Users_ImapConfigurations_ImapSettingsId",
+                "Users");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Users_Settings_SettingsId",
-                table: "Users");
+                "FK_Users_Settings_SettingsId",
+                "Users");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Users_SmtpConfigurations_SmtpSettingsId",
-                table: "Users");
+                "FK_Users_SmtpConfigurations_SmtpSettingsId",
+                "Users");
 
             migrationBuilder.DropPrimaryKey(
-                name: "PK_Users",
-                table: "Users");
+                "PK_Users",
+                "Users");
 
             migrationBuilder.RenameTable(
-                name: "Users",
+                "Users",
                 newName: "Employees");
 
             migrationBuilder.RenameIndex(
-                name: "IX_Users_SmtpSettingsId",
+                "IX_Users_SmtpSettingsId",
                 table: "Employees",
                 newName: "IX_Employees_SmtpSettingsId");
 
             migrationBuilder.RenameIndex(
-                name: "IX_Users_SettingsId",
+                "IX_Users_SettingsId",
                 table: "Employees",
                 newName: "IX_Employees_SettingsId");
 
             migrationBuilder.RenameIndex(
-                name: "IX_Users_ImapSettingsId",
+                "IX_Users_ImapSettingsId",
                 table: "Employees",
                 newName: "IX_Employees_ImapSettingsId");
 
             migrationBuilder.AddPrimaryKey(
-                name: "PK_Employees",
-                table: "Employees",
-                column: "Id");
+                "PK_Employees",
+                "Employees",
+                "Id");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Employees_ImapConfigurations_ImapSettingsId",
-                table: "Employees",
-                column: "ImapSettingsId",
-                principalTable: "ImapConfigurations",
+                "FK_Employees_ImapConfigurations_ImapSettingsId",
+                "Employees",
+                "ImapSettingsId",
+                "ImapConfigurations",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Employees_Settings_SettingsId",
-                table: "Employees",
-                column: "SettingsId",
-                principalTable: "Settings",
+                "FK_Employees_Settings_SettingsId",
+                "Employees",
+                "SettingsId",
+                "Settings",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Employees_SmtpConfigurations_SmtpSettingsId",
-                table: "Employees",
-                column: "SmtpSettingsId",
-                principalTable: "SmtpConfigurations",
+                "FK_Employees_SmtpConfigurations_SmtpSettingsId",
+                "Employees",
+                "SmtpSettingsId",
+                "SmtpConfigurations",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Signature_Employees_UserId",
-                table: "Signature",
-                column: "UserId",
-                principalTable: "Employees",
+                "FK_Signature_Employees_UserId",
+                "Signature",
+                "UserId",
+                "Employees",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
         }

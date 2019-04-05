@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using MailKit.Net.Smtp;
 using MimeKit;
@@ -9,42 +7,36 @@ namespace MailerWeb.Services
 {
     public class SmtpService : ISmtpService
     {
-        private SmtpClient _client;
-
         public SmtpService()
         {
-            _client = new SmtpClient();
+            Client = new SmtpClient();
         }
 
-        public SmtpClient Client
-        {
-            get => _client;
-            set => _client = value;
-        }
+        public SmtpClient Client { get; set; }
 
         public void AcceptAllSslCertificates(bool value)
         {
-            _client.ServerCertificateValidationCallback = (s, c, h, e) => value;
+            Client.ServerCertificateValidationCallback = (s, c, h, e) => value;
         }
 
         public async Task ConnectAsync(string address, int port, bool ssl)
         {
-            await _client.ConnectAsync(address, port, ssl);
+            await Client.ConnectAsync(address, port, ssl);
         }
 
         public async Task AuthenticateAsync(string login, string password)
         {
-            await _client.AuthenticateAsync(login, password);
+            await Client.AuthenticateAsync(login, password);
         }
 
         public async Task SendEmailAsync(MimeMessage message, MailboxAddress sender, IList<MailboxAddress> recipients)
         {
-            await _client.SendAsync(message, sender, recipients);
+            await Client.SendAsync(message, sender, recipients);
         }
 
         public async Task SendEmailAsync(MimeMessage message)
         {
-            await _client.SendAsync(message);
+            await Client.SendAsync(message);
         }
     }
 }

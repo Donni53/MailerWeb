@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 
 namespace MailerWeb.Security
@@ -40,7 +36,8 @@ namespace MailerWeb.Security
 
                 Expires = now.AddMinutes(Convert.ToInt32(expireMinutes)),
 
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(symmetricKey), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(symmetricKey),
+                    SecurityAlgorithms.HmacSha256Signature)
             };
 
             var sToken = tokenHandler.CreateToken(tokenDescriptor);

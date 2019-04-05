@@ -1,20 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MailKit;
+﻿using MailKit;
 
 namespace MailerWeb.Models
 {
     public class MailFolder
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public int Count { get; set; }
-        public int Recent { get; set; }
-        public int Unread { get; set; }
-        public ulong? Size { get; set; }
-
         public MailFolder(IMailFolder folder)
         {
             Id = folder.Id;
@@ -24,5 +13,12 @@ namespace MailerWeb.Models
             Unread = folder.Unread;
             Size = folder.Size;
         }
+
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public int Count { get; set; }
+        public int Recent { get; set; }
+        public int Unread { get; set; }
+        public ulong? Size { get; set; }
     }
 }

@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using MailerWeb.Models.Repository;
-using Microsoft.EntityFrameworkCore;
 
 namespace MailerWeb.Models.DataManager
 {
     public class UserManager : IUserRepository<User>
     {
         private readonly DataBaseContext _db;
+
         public UserManager(DataBaseContext dbContext)
         {
             _db = dbContext;
         }
+
         public async Task AddAsync(User entity)
         {
             await _db.Users.AddAsync(entity);
@@ -32,7 +31,8 @@ namespace MailerWeb.Models.DataManager
 
         public User GetByLogin(string login)
         {
-            return _db.Users//.Include("ConnectionSettings").Include("Settings").Include("ImapConfiguration").Include("SmtpConfiguration")
+            return _db
+                .Users //.Include("ConnectionSettings").Include("Settings").Include("ImapConfiguration").Include("SmtpConfiguration")
                 .FirstOrDefault(e => e.Login == login);
         }
 

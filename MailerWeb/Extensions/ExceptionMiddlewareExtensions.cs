@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MailerWeb.CustomExceptionMiddleware;
+﻿using MailerWeb.CustomExceptionMiddleware;
 using Microsoft.AspNetCore.Builder;
 
 namespace MailerWeb.Extensions

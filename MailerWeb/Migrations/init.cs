@@ -8,56 +8,51 @@ namespace MailerWeb.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "ImapConfigurations",
-                columns: table => new
+                "ImapConfigurations",
+                table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy",
+                            SqlServerValueGenerationStrategy.IdentityColumn),
                     Address = table.Column<string>(nullable: true),
                     Port = table.Column<int>(nullable: false),
                     Ssl = table.Column<bool>(nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ImapConfigurations", x => x.Id);
-                });
+                constraints: table => { table.PrimaryKey("PK_ImapConfigurations", x => x.Id); });
 
             migrationBuilder.CreateTable(
-                name: "Settings",
-                columns: table => new
+                "Settings",
+                table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy",
+                            SqlServerValueGenerationStrategy.IdentityColumn),
                     Theme = table.Column<string>(nullable: true),
                     Localization = table.Column<string>(nullable: true),
                     Notifications = table.Column<bool>(nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Settings", x => x.Id);
-                });
+                constraints: table => { table.PrimaryKey("PK_Settings", x => x.Id); });
 
             migrationBuilder.CreateTable(
-                name: "SmtpConfigurations",
-                columns: table => new
+                "SmtpConfigurations",
+                table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy",
+                            SqlServerValueGenerationStrategy.IdentityColumn),
                     Address = table.Column<string>(nullable: true),
                     Port = table.Column<int>(nullable: false),
                     Ssl = table.Column<bool>(nullable: false)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SmtpConfigurations", x => x.Id);
-                });
+                constraints: table => { table.PrimaryKey("PK_SmtpConfigurations", x => x.Id); });
 
             migrationBuilder.CreateTable(
-                name: "Employees",
-                columns: table => new
+                "Employees",
+                table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy",
+                            SqlServerValueGenerationStrategy.IdentityColumn),
                     Login = table.Column<string>(nullable: true),
                     Password = table.Column<string>(nullable: true),
                     Name = table.Column<string>(nullable: true),
@@ -70,31 +65,32 @@ namespace MailerWeb.Migrations
                 {
                     table.PrimaryKey("PK_Employees", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Employees_ImapConfigurations_ImapSettingsId",
-                        column: x => x.ImapSettingsId,
-                        principalTable: "ImapConfigurations",
-                        principalColumn: "Id",
+                        "FK_Employees_ImapConfigurations_ImapSettingsId",
+                        x => x.ImapSettingsId,
+                        "ImapConfigurations",
+                        "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Employees_Settings_SettingsId",
-                        column: x => x.SettingsId,
-                        principalTable: "Settings",
-                        principalColumn: "Id",
+                        "FK_Employees_Settings_SettingsId",
+                        x => x.SettingsId,
+                        "Settings",
+                        "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Employees_SmtpConfigurations_SmtpSettingsId",
-                        column: x => x.SmtpSettingsId,
-                        principalTable: "SmtpConfigurations",
-                        principalColumn: "Id",
+                        "FK_Employees_SmtpConfigurations_SmtpSettingsId",
+                        x => x.SmtpSettingsId,
+                        "SmtpConfigurations",
+                        "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Signature",
-                columns: table => new
+                "Signature",
+                table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy",
+                            SqlServerValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(nullable: true),
                     SignatureText = table.Column<string>(nullable: true),
                     UserId = table.Column<int>(nullable: true)
@@ -103,50 +99,50 @@ namespace MailerWeb.Migrations
                 {
                     table.PrimaryKey("PK_Signature", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Signature_Employees_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Employees",
-                        principalColumn: "Id",
+                        "FK_Signature_Employees_UserId",
+                        x => x.UserId,
+                        "Employees",
+                        "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Employees_ImapSettingsId",
-                table: "Employees",
-                column: "ImapSettingsId");
+                "IX_Employees_ImapSettingsId",
+                "Employees",
+                "ImapSettingsId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Employees_SettingsId",
-                table: "Employees",
-                column: "SettingsId");
+                "IX_Employees_SettingsId",
+                "Employees",
+                "SettingsId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Employees_SmtpSettingsId",
-                table: "Employees",
-                column: "SmtpSettingsId");
+                "IX_Employees_SmtpSettingsId",
+                "Employees",
+                "SmtpSettingsId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Signature_UserId",
-                table: "Signature",
-                column: "UserId");
+                "IX_Signature_UserId",
+                "Signature",
+                "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Signature");
+                "Signature");
 
             migrationBuilder.DropTable(
-                name: "Employees");
+                "Employees");
 
             migrationBuilder.DropTable(
-                name: "ImapConfigurations");
+                "ImapConfigurations");
 
             migrationBuilder.DropTable(
-                name: "Settings");
+                "Settings");
 
             migrationBuilder.DropTable(
-                name: "SmtpConfigurations");
+                "SmtpConfigurations");
         }
     }
 }

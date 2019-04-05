@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MailKit;
@@ -9,32 +8,26 @@ namespace MailerWeb.Services
 {
     public class ImapService : IImapService
     {
-        private ImapClient _client;
-
         public ImapService()
         {
-            _client = new ImapClient();
+            Client = new ImapClient();
         }
 
-        public ImapClient Client
-        {
-            get => _client;
-            set => _client = value;
-        }
+        public ImapClient Client { get; set; }
 
         public void AcceptAllSslCertificates(bool value)
         {
-            _client.ServerCertificateValidationCallback = (s, c, h, e) => value;
+            Client.ServerCertificateValidationCallback = (s, c, h, e) => value;
         }
 
         public async Task ConnectAsync(string address, int port, bool ssl)
         {
-            await _client.ConnectAsync(address, port, ssl);
+            await Client.ConnectAsync(address, port, ssl);
         }
 
         public async Task AuthenticateAsync(string login, string password)
         {
-            await _client.AuthenticateAsync(login, password);
+            await Client.AuthenticateAsync(login, password);
         }
 
         public async Task OpenFolder(IMailFolder folder)
@@ -54,19 +47,19 @@ namespace MailerWeb.Services
 
         public async Task<IList<IMailFolder>> GetFoldersAsync()
         {
-            var folders = await _client.GetFoldersAsync(_client.PersonalNamespaces.FirstOrDefault());
+            var folders = await Client.GetFoldersAsync(Client.PersonalNamespaces.FirstOrDefault());
             return folders;
         }
 
         public async Task<IMailFolder> GetMailFolderByNameAsync(string name)
         {
-            var folder = await _client.GetFolderAsync(name);
+            var folder = await Client.GetFolderAsync(name);
             return folder;
         }
 
         public async Task<IMailFolder> CreateFolderAsync(string displayName)
         {
-            var topLevelFolder = await _client.GetFolderAsync(_client.PersonalNamespaces.FirstOrDefault()?.Path);
+            var topLevelFolder = await Client.GetFolderAsync(Client.PersonalNamespaces.FirstOrDefault()?.Path);
             var newFolder = await topLevelFolder.CreateAsync(displayName, true);
             return newFolder;
         }
@@ -83,7 +76,8 @@ namespace MailerWeb.Services
             await folder.DeleteAsync();
         }
 
-        public async Task<IList<IMessageSummary>> GetMessagesRangeAsync(int min, int max, IMailFolder folder, MessageSummaryItems items)
+        public async Task<IList<IMessageSummary>> GetMessagesRangeAsync(int min, int max, IMailFolder folder,
+            MessageSummaryItems items)
         {
             await OpenFolder(folder);
             var messages = await folder.FetchAsync(min, max, items);
@@ -131,6 +125,5 @@ namespace MailerWeb.Services
         {
             await folder.RemoveFlagsAsync(indexList, MessageFlags.Answered, true);
         }
-
     }
 }

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace MailerWeb.Models.Exceptions
 {
@@ -9,7 +6,6 @@ namespace MailerWeb.Models.Exceptions
     {
         public NullUserException() : base("Could not find user. Update required.")
         {
-
         }
     }
 }
