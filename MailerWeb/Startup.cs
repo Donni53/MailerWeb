@@ -1,4 +1,5 @@
-﻿using MailerWeb.Extensions;
+﻿using System;
+using MailerWeb.Extensions;
 using MailerWeb.Models;
 using MailerWeb.Models.DataManager;
 using MailerWeb.Models.Repository;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
 
 namespace MailerWeb
 {
@@ -27,13 +29,31 @@ namespace MailerWeb
             var connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<DataBaseContext>(options =>
                 options.UseLazyLoadingProxies().UseSqlServer(connection));
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v0.1", new OpenApiInfo
+                {
+                    Title = "Mailer API",
+                    Version = "v0.1",
+                    Description = "Imap and smtp web API app using Mailkit",
+                    Contact = new OpenApiContact()
+                    {
+                        Name = "Daniil Novitskiy",
+                        Email = "donnipc@outlook.com",
+                        Url = new Uri("https://github.com/Donni53")
+                    }
+                });
+            });
+
             services.AddScoped<IUserRepository<User>, UserManager>();
             services.AddScoped<IConnectionDataRepository<ConnectionConfiguration>, ConnectionDataManager>();
             services.AddScoped<IImapService, ImapService>();
             services.AddScoped<ISmtpService, SmtpService>();
             services.AddScoped<IImapMailService, ImapMailService>();
             services.AddScoped<ISmtpMailService, SmtpMailService>();
-            services.AddScoped<AuthService>();
+            services.AddScoped<IAuthService,AuthService>();
+            services.AddScoped<IUserService, UserService>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddMemoryCache();
         }
@@ -45,7 +65,11 @@ namespace MailerWeb
                 app.UseDeveloperExceptionPage();
             else
                 app.UseHsts();
-
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v0.1/swagger.json", "My API V0.1");
+            });
             app.ConfigureCustomExceptionMiddleware();
             app.UseHttpsRedirection();
             app.UseMvc();

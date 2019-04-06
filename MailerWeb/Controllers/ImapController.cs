@@ -12,10 +12,10 @@ namespace MailerWeb.Controllers
     [ApiController]
     public class ImapController : ControllerBase
     {
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
         private readonly IImapMailService _imapMailService;
 
-        public ImapController(AuthService authService, IImapMailService imapMailService)
+        public ImapController(IAuthService authService, IImapMailService imapMailService)
         {
             _authService = authService;
             _imapMailService = imapMailService;

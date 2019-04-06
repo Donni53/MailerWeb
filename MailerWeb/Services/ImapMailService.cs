@@ -12,11 +12,11 @@ namespace MailerWeb.Services
 {
     public class ImapMailService : IImapMailService
     {
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
         private readonly IImapService _imapService;
         private readonly IMemoryCache _memoryCache;
 
-        public ImapMailService(IMemoryCache memoryCache, IImapService imapService, AuthService authService)
+        public ImapMailService(IMemoryCache memoryCache, IImapService imapService, IAuthService authService)
         {
             _memoryCache = memoryCache;
             _imapService = imapService;

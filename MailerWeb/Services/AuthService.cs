@@ -126,7 +126,6 @@ namespace MailerWeb.Services
             }
         }
 
-
         public async Task<ImapClient> ImapRefresh(string token)
         {
             var claims = Jwt.DecodeToken(token);
