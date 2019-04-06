@@ -65,7 +65,7 @@ namespace MailerWeb.CustomExceptionMiddleware
                 new ErrorResponse
                 {
                     Status = statusCode,
-                    DeveloperMessage = e.Source,
+                    DeveloperMessage = $"{e.Source} {nameof(e)}",
                     UserMessage = e.Message,
                     MoreInfo = e.HelpLink,
                     ErrorCode = e.HResult
