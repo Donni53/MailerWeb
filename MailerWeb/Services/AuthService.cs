@@ -18,21 +18,20 @@ namespace MailerWeb.Services
     public class AuthService : IAuthService
     {
         private readonly IConnectionDataRepository<ConnectionConfiguration> _connectionDataRepository;
-        private readonly DataBaseContext _dataBaseContext;
         private readonly IUserRepository<User> _dataRepository;
         private readonly IImapService _imapService;
         private readonly IMemoryCache _memoryCache;
         private readonly ISmtpService _smtpService;
 
-        public AuthService(IUserRepository<User> dataRepository, IImapService imapService, ISmtpService smtpService,
-            IMemoryCache memoryCache, DataBaseContext dataBaseContext,
+        public AuthService(
+            IUserRepository<User> dataRepository, IImapService imapService, ISmtpService smtpService,
+            IMemoryCache memoryCache,
             IConnectionDataRepository<ConnectionConfiguration> connectionDataRepository)
         {
             _dataRepository = dataRepository;
             _imapService = imapService;
             _smtpService = smtpService;
             _memoryCache = memoryCache;
-            _dataBaseContext = dataBaseContext;
             _connectionDataRepository = connectionDataRepository;
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MailerWeb.Models.Repository
 {
@@ -9,8 +10,12 @@ namespace MailerWeb.Models.Repository
         Task AddAsync(TEntity entity);
         void Update(User entity, User newEntity);
         void Delete(TEntity entity);
-        //TEntity AddSignature(int id, Signature signature);
-        //TEntity GetSignature(int id, int signatureId);
+        Task<Signature> AddSignature(string login, Signature signature);
+        Task<Signature> GetSignature(string login, int signatureId);
+        Task<IList<Signature>> GetSignatures(string login);
+        Task DeleteSignature(string login, int signatureId);
+        Task<Signature> EditSignature(string login, int signatureId, Signature newSignature);
+        Task EditNames(string login, string name, string nickname);
         Task SaveAsync();
     }
 }

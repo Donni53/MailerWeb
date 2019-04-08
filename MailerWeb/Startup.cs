@@ -68,7 +68,7 @@ namespace MailerWeb
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v0.1/swagger.json", "My API V0.1");
+                c.SwaggerEndpoint("/swagger/v0.1/swagger.json", "Mailer API V0.1");
             });
             app.ConfigureCustomExceptionMiddleware();
             app.UseHttpsRedirection();
