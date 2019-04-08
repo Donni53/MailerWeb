@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MailerWeb.Models;
 using MailerWeb.Models.Repository;
 using MailerWeb.Models.Requests;
+using MailerWeb.Models.Responses;
 using MailerWeb.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,7 @@ namespace MailerWeb.Controllers
         public async Task<IActionResult> AddSignatureAsync([FromBody]AddSignatureData data)
         {
             var signature = await _userService.AddSignatureAsync(data.Token, data.Signature);
-            return StatusCode(200, signature);
+            return StatusCode(200, new SignaturesResponse() { Code = 0, Status = 200, Count = 1, Signatures = new List<Signature>() {signature}});
         }
 
         [HttpGet]
@@ -35,7 +36,7 @@ namespace MailerWeb.Controllers
         public async Task<IActionResult> GetSignatureAsync([FromQuery]string token, int signatureId)
         {
             var signature = await _userService.GetSignatureAsync(token, signatureId);
-            return StatusCode(200, signature);
+            return StatusCode(200, new SignaturesResponse() { Code = 0, Status = 200, Count = 1, Signatures = new List<Signature>() { signature } });
         }
 
         [HttpGet]
@@ -43,7 +44,7 @@ namespace MailerWeb.Controllers
         public async Task<IActionResult> GetSignatures([FromQuery] string token)
         {
             var signatures = await _userService.GetSignaturesAsync(token);
-            return StatusCode(200, signatures);
+            return StatusCode(200, new SignaturesResponse() { Code = 0, Status = 200, Count = signatures.Count, Signatures = signatures.ToList() });
         }
 
         [HttpDelete]
@@ -59,7 +60,7 @@ namespace MailerWeb.Controllers
         public async Task<IActionResult> EditSignatureAsync([FromBody]EditSignatureData data)
         {
             var signature = await _userService.EditSignatureAsync(data.Token, data.SignatureId, data.NewSignature);
-            return StatusCode(200, signature);
+            return StatusCode(200, new SignaturesResponse() { Code = 0, Status = 200, Count = 1, Signatures = new List<Signature>() { signature } });
         }
 
         [HttpPost]
