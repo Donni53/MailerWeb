@@ -14,62 +14,68 @@ namespace MailerWeb.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository<User> _dataRepository;
+        private readonly IAuthService _authService;
 
-        public UserService(IUserRepository<User> dataRepository)
+        public UserService(IUserRepository<User> dataRepository, IAuthService authService)
         {
             _dataRepository = dataRepository;
-        }
-
-        public string GetLoginFromToken(string token)
-        {
-            var claims = Jwt.DecodeToken(token);
-            var enumerable = claims as Claim[] ?? claims.ToArray();
-            var login = enumerable.FirstOrDefault(e => e.Type == "Login")?.Value;
-            return login;
+            _authService = authService;
         }
 
 
         public async Task<Signature> AddSignatureAsync(string token, Signature signature)
         {
-            var login = GetLoginFromToken(token);
-            var newSignature = await _dataRepository.AddSignature(login, signature);
+            var refreshData = await _authService.GetRefreshData(token);
+            if (!refreshData.User.Password.Equals(Sha256.GetHashString(refreshData.Password)))
+                throw new ArgumentException("Wrong login or password");
+            var newSignature = await _dataRepository.AddSignatureAsync(refreshData.User.Login, signature);
             await _dataRepository.SaveAsync();
             return newSignature;
         }
 
         public async Task<Signature> GetSignatureAsync(string token, int signatureId)
         {
-            var login = GetLoginFromToken(token);
-            var signature = await _dataRepository.GetSignature(login, signatureId);
+            var refreshData = await _authService.GetRefreshData(token);
+            if (!refreshData.User.Password.Equals(Sha256.GetHashString(refreshData.Password)))
+                throw new ArgumentException("Wrong login or password");
+            var signature = await _dataRepository.GetSignatureAsync(refreshData.User.Login, signatureId);
             return signature;
         }
 
         public async Task<IList<Signature>> GetSignaturesAsync(string token)
         {
-            var login = GetLoginFromToken(token);
-            var signatures = await _dataRepository.GetSignatures(login);
+            var refreshData = await _authService.GetRefreshData(token);
+            if (!refreshData.User.Password.Equals(Sha256.GetHashString(refreshData.Password)))
+                throw new ArgumentException("Wrong login or password");
+            var signatures = await _dataRepository.GetSignaturesAsync(refreshData.User.Login);
             return signatures;
         }
 
         public async Task DeleteSignatureAsync(string token, int signatureId)
         {
-            var login = GetLoginFromToken(token);
-            await _dataRepository.DeleteSignature(login, signatureId);
+            var refreshData = await _authService.GetRefreshData(token);
+            if (!refreshData.User.Password.Equals(Sha256.GetHashString(refreshData.Password)))
+                throw new ArgumentException("Wrong login or password");
+            await _dataRepository.DeleteSignatureAsync(refreshData.User.Login, signatureId);
             await _dataRepository.SaveAsync();
         }
 
         public async Task<Signature> EditSignatureAsync(string token, int signatureId, Signature newSignature)
         {
-            var login = GetLoginFromToken(token);
-            var signature = await _dataRepository.EditSignature(login, signatureId, newSignature);
+            var refreshData = await _authService.GetRefreshData(token);
+            if (!refreshData.User.Password.Equals(Sha256.GetHashString(refreshData.Password)))
+                throw new ArgumentException("Wrong login or password");
+            var signature = await _dataRepository.EditSignatureAsync(refreshData.User.Login, signatureId, newSignature);
             await _dataRepository.SaveAsync();
             return signature;
         }
 
-        public async Task EditNames(string token, string name, string nickname)
+        public async Task EditName(string token, string name)
         {
-            var login = GetLoginFromToken(token);
-            await _dataRepository.EditNames(login, name, nickname);
+            var refreshData = await _authService.GetRefreshData(token);
+            if (!refreshData.User.Password.Equals(Sha256.GetHashString(refreshData.Password)))
+                throw new ArgumentException("Wrong login or password");
+            await _dataRepository.EditNameAsync(refreshData.User.Login, name);
             await _dataRepository.SaveAsync();
         }
     }

@@ -35,57 +35,87 @@ namespace MailerWeb.Services
             _connectionDataRepository = connectionDataRepository;
         }
 
-        public async Task<string> SignUpAsync(User user)
-        {
-            var mailAddress = new MailAddress(user.Login);
-            var connectionConfiguration = _connectionDataRepository.GetByAddress(
-                                              user.ConnectionSettings.ImapConfiguration.Address,
-                                              user.ConnectionSettings.SmtpConfiguration.Address) ??
-                                          _connectionDataRepository.GetByDomain(mailAddress.Host);
-            if (connectionConfiguration != null)
-                user.ConnectionSettings = connectionConfiguration;
 
+        public async Task<string> SignInAsync(SignCredentials credentials)
+        {
+            var dbUser = await _dataRepository.GetByLoginAsync(credentials.Login);
+
+            ConnectionConfiguration connectionConfiguration = null;
+
+            if (dbUser == null)
+            {
+                if (credentials.ConnectionSettings == null)
+                {
+                    var mailAddress = new MailAddress(credentials.Login);
+                    connectionConfiguration = _connectionDataRepository.GetByDomain(mailAddress.Host);
+                    if (connectionConfiguration == null)
+                        throw new ConnectionDataException();
+                }
+                else
+                {
+                    if (credentials.NewConnectionSettings && credentials.ConnectionSettings != null)
+                    {
+                        connectionConfiguration = credentials.ConnectionSettings;
+                    }
+                    else
+                    {
+                        connectionConfiguration = _connectionDataRepository.GetByAddress(
+                            credentials.ConnectionSettings.ImapConfiguration.Address,
+                            credentials.ConnectionSettings.SmtpConfiguration.Address);
+                    }
+                }
+            }
+            else
+            {
+                if (credentials.NewConnectionSettings && credentials.ConnectionSettings != null)
+                {
+                    connectionConfiguration = credentials.ConnectionSettings;
+                }
+                else
+                {
+                    connectionConfiguration = dbUser.ConnectionSettings;
+                }
+            }
 
             _imapService.AcceptAllSslCertificates(true);
-            await _imapService.ConnectAsync(user.ConnectionSettings.ImapConfiguration.Address,
-                user.ConnectionSettings.ImapConfiguration.Port, true);
-            await _imapService.AuthenticateAsync(user.Login, user.Password);
+            await _imapService.ConnectAsync(connectionConfiguration.ImapConfiguration.Address, connectionConfiguration.ImapConfiguration.Port, true);
+            await _imapService.AuthenticateAsync(credentials.Login, credentials.Password);
 
             _smtpService.AcceptAllSslCertificates(true);
-            await _smtpService.ConnectAsync(user.ConnectionSettings.SmtpConfiguration.Address,
-                user.ConnectionSettings.SmtpConfiguration.Port, true);
-            await _smtpService.AuthenticateAsync(user.Login, user.Password);
-
+            await _smtpService.ConnectAsync(connectionConfiguration.SmtpConfiguration.Address, connectionConfiguration.SmtpConfiguration.Port, true);
+            await _smtpService.AuthenticateAsync(credentials.Login, credentials.Password);
 
             var myRijndael = new RijndaelManaged();
             myRijndael.GenerateKey();
             myRijndael.GenerateIV();
-            var encrypted = RijndaelManager.EncryptStringToBytes(user.Password, myRijndael.Key, myRijndael.IV);
-
-            user.Password = Convert.ToBase64String(encrypted);
-
-
-            var dbUser = _dataRepository.GetByLogin(user.Login);
-
+            var encryptedPassword = Convert.ToBase64String(RijndaelManager.EncryptStringToBytes(credentials.Password, myRijndael.Key, myRijndael.IV));
+            var base64Key = Convert.ToBase64String(myRijndael.Key);
+            var base64Iv = Convert.ToBase64String(myRijndael.IV);
+            var hashedPassword = MailerWeb.Security.Sha256.GetHashString(credentials.Password);
+            var encryptedPasswordEntity = new EncryptedPassword(encryptedPassword);
 
             if (dbUser != null)
             {
-                _dataRepository.Update(dbUser, user);
+                dbUser.ConnectionSettings = connectionConfiguration;
+                dbUser.Password = hashedPassword;
+                dbUser.EncryptedPasswords.Add(encryptedPasswordEntity);
+                _dataRepository.Update(dbUser);
             }
             else
             {
-                if (user.ConnectionSettings.DomainsList.FirstOrDefault(x => x.Domain == mailAddress.Host) == null)
-                    user.ConnectionSettings.DomainsList.Add(new EmailDomain {Domain = mailAddress.Host});
-                await _dataRepository.AddAsync(user);
+                dbUser = new User
+                {
+                    Login = credentials.Login,
+                    Password = hashedPassword,
+                    ConnectionSettings = connectionConfiguration,
+                };
+                dbUser.EncryptedPasswords.Add(encryptedPasswordEntity);
+                await _dataRepository.AddAsync(dbUser);
             }
 
             await _dataRepository.SaveAsync();
 
-            var key = Convert.ToBase64String(myRijndael.Key);
-            var iv = Convert.ToBase64String(myRijndael.IV);
-
-            var token = Jwt.GenerateToken(user.Login, key, iv);
-
+            var token = Jwt.GenerateToken(credentials.Login, base64Key, base64Iv, encryptedPasswordEntity.Id);
 
             var options = new MemoryCacheEntryOptions
             {
@@ -99,49 +129,37 @@ namespace MailerWeb.Services
             return token;
         }
 
-        public async Task<string> SignInAsync(SignInCredentials signInCredentials)
-        {
-            var dbUser = _dataRepository.GetByLogin(signInCredentials.Login);
-
-            if (dbUser != null)
-            {
-                dbUser.Password = signInCredentials.Password;
-                var token = await SignUpAsync(dbUser);
-                return token;
-            }
-            else
-            {
-                var mailAddress = new MailAddress(signInCredentials.Login);
-                var connectionConfiguration = _connectionDataRepository.GetByDomain(mailAddress.Host);
-                if (connectionConfiguration == null)
-                    throw new ConnectionDataException();
-                var user = new User
-                {
-                    Login = signInCredentials.Login, Password = signInCredentials.Password,
-                    ConnectionSettings = connectionConfiguration, Settings = new Settings()
-                };
-                var token = await SignUpAsync(user);
-                return token;
-            }
-        }
-
-        public async Task<ImapClient> ImapRefresh(string token)
+        public async Task<RefreshData> GetRefreshData(string token)
         {
             var claims = Jwt.DecodeToken(token);
             var enumerable = claims as Claim[] ?? claims.ToArray();
             var login = enumerable.FirstOrDefault(e => e.Type == "Login")?.Value;
             var key = enumerable.FirstOrDefault(e => e.Type == "Key")?.Value;
             var vector = enumerable.FirstOrDefault(e => e.Type == "IV")?.Value;
-            var dbUser = _dataRepository.GetByLogin(login);
+            var encryptedPasswordId = Convert.ToInt32(enumerable.FirstOrDefault(e => e.Type == "Id")?.Value);
+
+            var dbUser = await _dataRepository.GetByLoginAsync(login);
             if (dbUser == null)
                 throw new NullUserException();
-            var password = RijndaelManager.DecryptStringFromBytes(Convert.FromBase64String(dbUser.Password),
-                Convert.FromBase64String(key), Convert.FromBase64String(vector));
-            _imapService.AcceptAllSslCertificates(true);
-            await _imapService.ConnectAsync(dbUser.ConnectionSettings.ImapConfiguration.Address,
-                dbUser.ConnectionSettings.ImapConfiguration.Port, true);
-            await _imapService.AuthenticateAsync(dbUser.Login, password);
 
+            var encryptedPassword = dbUser.EncryptedPasswords.FirstOrDefault(e => e.Id == encryptedPasswordId);
+
+            if (encryptedPassword == null)
+                throw new NullUserException();
+
+            var password = RijndaelManager.DecryptStringFromBytes(Convert.FromBase64String(encryptedPassword?.Password),
+                Convert.FromBase64String(key), Convert.FromBase64String(vector));
+            return new RefreshData() { User = dbUser, Password = password };
+        }
+
+        public async Task<ImapClient> ImapRefresh(string token)
+        {
+            var refreshData = await GetRefreshData(token);
+
+            _imapService.AcceptAllSslCertificates(true);
+            await _imapService.ConnectAsync(refreshData.User.ConnectionSettings.ImapConfiguration.Address,
+                refreshData.User.ConnectionSettings.ImapConfiguration.Port, true);
+            await _imapService.AuthenticateAsync(refreshData.User.Login, refreshData.Password);
 
             var options = new MemoryCacheEntryOptions
             {
@@ -157,20 +175,12 @@ namespace MailerWeb.Services
 
         public async Task<SmtpClient> SmtpRefresh(string token)
         {
-            var claims = Jwt.DecodeToken(token);
-            var enumerable = claims as Claim[] ?? claims.ToArray();
-            var login = enumerable.FirstOrDefault(e => e.Type == "Login")?.Value;
-            var key = enumerable.FirstOrDefault(e => e.Type == "Key")?.Value;
-            var vector = enumerable.FirstOrDefault(e => e.Type == "IV")?.Value;
-            var dbUser = _dataRepository.GetByLogin(login);
-            if (dbUser == null)
-                throw new NullUserException();
-            var password = RijndaelManager.DecryptStringFromBytes(Convert.FromBase64String(dbUser.Password),
-                Convert.FromBase64String(key), Convert.FromBase64String(vector));
+            var refreshData = await GetRefreshData(token);
+
             _smtpService.AcceptAllSslCertificates(true);
-            await _smtpService.ConnectAsync(dbUser.ConnectionSettings.SmtpConfiguration.Address,
-                dbUser.ConnectionSettings.SmtpConfiguration.Port, true);
-            await _smtpService.AuthenticateAsync(dbUser.Login, password);
+            await _smtpService.ConnectAsync(refreshData.User.ConnectionSettings.SmtpConfiguration.Address,
+                refreshData.User.ConnectionSettings.SmtpConfiguration.Port, true);
+            await _smtpService.AuthenticateAsync(refreshData.User.Login, refreshData.Password);
 
 
             var options = new MemoryCacheEntryOptions

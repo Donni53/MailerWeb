@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MailerWeb.Models.Exceptions;
 using MailerWeb.Models.Repository;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,65 +27,62 @@ namespace MailerWeb.Models.DataManager
             _db.Users.Remove(entity);
         }
 
-        public async Task<Signature> AddSignature(string login, Signature signature)
+        public async Task<Signature> AddSignatureAsync(string login, Signature signature)
         {
-            var user = _db.Users.FirstOrDefault(e => e.Login == login);
+            var user = await _db.Users.FirstOrDefaultAsync(e => e.Login == login);
             user?.Signatures.Add(signature);
-            return user.Signatures.LastOrDefault();
+            return user?.Signatures.LastOrDefault();
         }
 
-        public async Task<Signature> GetSignature(string login, int signatureId)
+        public async Task<Signature> GetSignatureAsync(string login, int signatureId)
         {
-            var user = _db.Users.FirstOrDefault(e => e.Login == login);
+            var user = await _db.Users.FirstOrDefaultAsync(e => e.Login == login);
             return user.Signatures.FirstOrDefault(e => e.Id == signatureId);
         }
 
-        public async Task<IList<Signature>> GetSignatures(string login)
+        public async Task<IList<Signature>> GetSignaturesAsync(string login)
         {
-            var user = _db.Users.FirstOrDefault(e => e.Login == login);
+            var user = await _db.Users.FirstOrDefaultAsync(e => e.Login == login);
             return user.Signatures.ToList();
         }
 
-        public async Task DeleteSignature(string login, int signatureId)
+        public async Task DeleteSignatureAsync(string login, int signatureId)
         {
-            var user = _db.Users.FirstOrDefault(e => e.Login == login);
+            var user = await _db.Users.FirstOrDefaultAsync(e => e.Login == login);
             user.Signatures.Remove(user.Signatures.FirstOrDefault(e => e.Id == signatureId));
         }
 
-        public async Task<Signature> EditSignature(string login, int signatureId, Signature newSignature)
+        public async Task<Signature> EditSignatureAsync(string login, int signatureId, Signature newSignature)
         {
-            var user = _db.Users.FirstOrDefault(e => e.Login == login);
+            var user = await _db.Users.FirstOrDefaultAsync(e => e.Login == login);
             var oldSignature = user.Signatures.FirstOrDefault(e => e.Id == signatureId);
+            if (oldSignature == null) throw new ArgumentException("Wrong signature Id");
             oldSignature.Name = newSignature.Name;
             oldSignature.SignatureText = newSignature.SignatureText;
             return oldSignature;
         }
 
-        public async Task EditNames(string login, string name, string nickname)
+        public async Task EditNameAsync(string login, string name)
         {
-            var user = _db.Users.FirstOrDefault(e => e.Login == login);
-            user.Name = name;
-            user.Nickname = nickname;
+            var user = await _db.Users.FirstOrDefaultAsync(e => e.Login == login);
+            if (user != null) user.Name = name;
+            else
+                throw new NullUserException();
         }
 
-        public User Get(long id)
+        public async Task<User> GetAsync(long id)
         {
-            return _db.Users
-                .FirstOrDefault(e => e.Id == id);
+            return await _db.Users
+                .FirstOrDefaultAsync(e => e.Id == id);
         }
 
-        public User GetByLogin(string login)
+        public async Task<User> GetByLoginAsync(string login)
         {
-            return _db.Users.FirstOrDefault(e => e.Login == login);
+            return await _db.Users.FirstOrDefaultAsync(e => e.Login == login);
         }
 
-        public void Update(User entity, User newEntity)
+        public void Update(User entity)
         {
-            entity.Password = newEntity.Password;
-            entity.Name = newEntity.Name;
-            entity.Nickname = newEntity.Nickname;
-            entity.ConnectionSettings = newEntity.ConnectionSettings;
-
             _db.Users.Update(entity);
         }
 

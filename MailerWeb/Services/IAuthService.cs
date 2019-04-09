@@ -8,8 +8,8 @@ namespace MailerWeb.Services
 {
     public interface IAuthService
     {
-        Task<string> SignUpAsync(User user);
-        Task<string> SignInAsync(SignInCredentials signInCredentials);
+        Task<string> SignInAsync(SignCredentials credentials);
+        Task<RefreshData> GetRefreshData(string token);
         Task<ImapClient> ImapRefresh(string token);
         Task<SmtpClient> SmtpRefresh(string token);
     }

@@ -65,9 +65,9 @@ namespace MailerWeb.Controllers
 
         [HttpPost]
         [Route("EditNames")]
-        public async Task<IActionResult> EditNames([FromBody]EditNamesData data)
+        public async Task<IActionResult> EditNames([FromBody]EditNameData data)
         {
-            await _userService.EditNames(data.Token, data.Name, data.Nickname);
+            await _userService.EditName(data.Token, data.Name);
             return StatusCode(204);
         }
     }

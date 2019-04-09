@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace MailerWeb.Models.Requests
 {
-    public class EditNamesData
+    public class EditNameData
     {
         [Required] public string Token { get; set; }
         [Required] public string Name { get; set; }
-        [Required] public string Nickname { get; set; }
     }
 }

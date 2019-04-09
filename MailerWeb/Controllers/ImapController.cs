@@ -27,20 +27,12 @@ namespace MailerWeb.Controllers
             return StatusCode(404);
         }
 
-        [HttpPost]
-        [Route("SignUp")]
-        public async Task<IActionResult> SignUp([FromBody] User user)
-        {
-            var token = await _authService.SignUpAsync(user);
-            return StatusCode(200, new TokenResponse {Status = 200, Code = 0, Token = token});
-        }
-
 
         [HttpPost]
         [Route("SignIn")]
-        public async Task<IActionResult> SignIn([FromBody] SignInCredentials signInCredentials)
+        public async Task<IActionResult> SignIn([FromBody] SignCredentials credentials)
         {
-            var token = await _authService.SignInAsync(signInCredentials);
+            var token = await _authService.SignInAsync(credentials);
             return StatusCode(200, new TokenResponse {Status = 200, Code = 0, Token = token});
         }
 
