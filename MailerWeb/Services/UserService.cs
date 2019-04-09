@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using MailerWeb.Models;
 using MailerWeb.Models.Repository;
 using MailerWeb.Security;
-using Org.BouncyCastle.Bcpg.OpenPgp;
-using Org.BouncyCastle.Crypto.Tls;
 
 namespace MailerWeb.Services
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepository<User> _dataRepository;
         private readonly IAuthService _authService;
+        private readonly IUserRepository<User> _dataRepository;
 
         public UserService(IUserRepository<User> dataRepository, IAuthService authService)
         {

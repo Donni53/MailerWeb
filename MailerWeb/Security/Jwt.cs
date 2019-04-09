@@ -19,7 +19,8 @@ namespace MailerWeb.Security
             return subject.Claims;
         }
 
-        public static string GenerateToken(string login, string key, string vector, int passwordId, int expireMinutes = 43200)
+        public static string GenerateToken(string login, string key, string vector, int passwordId,
+            int expireMinutes = 43200)
         {
             var symmetricKey = Convert.FromBase64String(Secret);
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -32,7 +33,7 @@ namespace MailerWeb.Security
                     new Claim("Login", login),
                     new Claim("Id", Convert.ToString(passwordId)),
                     new Claim("Key", key),
-                    new Claim("IV", vector),
+                    new Claim("IV", vector)
                 }),
 
                 Expires = now.AddMinutes(Convert.ToInt32(expireMinutes)),

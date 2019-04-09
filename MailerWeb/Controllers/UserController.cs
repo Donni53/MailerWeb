@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MailerWeb.Models;
-using MailerWeb.Models.Repository;
 using MailerWeb.Models.Requests;
 using MailerWeb.Models.Responses;
 using MailerWeb.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MailerWeb.Controllers
@@ -25,18 +22,22 @@ namespace MailerWeb.Controllers
 
         [HttpPost]
         [Route("AddSignature")]
-        public async Task<IActionResult> AddSignatureAsync([FromBody]AddSignatureData data)
+        public async Task<IActionResult> AddSignatureAsync([FromBody] AddSignatureData data)
         {
             var signature = await _userService.AddSignatureAsync(data.Token, data.Signature);
-            return StatusCode(200, new SignaturesResponse() { Code = 0, Status = 200, Count = 1, Signatures = new List<Signature>() {signature}});
+            return StatusCode(200,
+                new SignaturesResponse
+                    {Code = 0, Status = 200, Count = 1, Signatures = new List<Signature> {signature}});
         }
 
         [HttpGet]
         [Route("GetSignature")]
-        public async Task<IActionResult> GetSignatureAsync([FromQuery]string token, int signatureId)
+        public async Task<IActionResult> GetSignatureAsync([FromQuery] string token, int signatureId)
         {
             var signature = await _userService.GetSignatureAsync(token, signatureId);
-            return StatusCode(200, new SignaturesResponse() { Code = 0, Status = 200, Count = 1, Signatures = new List<Signature>() { signature } });
+            return StatusCode(200,
+                new SignaturesResponse
+                    {Code = 0, Status = 200, Count = 1, Signatures = new List<Signature> {signature}});
         }
 
         [HttpGet]
@@ -44,12 +45,14 @@ namespace MailerWeb.Controllers
         public async Task<IActionResult> GetSignatures([FromQuery] string token)
         {
             var signatures = await _userService.GetSignaturesAsync(token);
-            return StatusCode(200, new SignaturesResponse() { Code = 0, Status = 200, Count = signatures.Count, Signatures = signatures.ToList() });
+            return StatusCode(200,
+                new SignaturesResponse
+                    {Code = 0, Status = 200, Count = signatures.Count, Signatures = signatures.ToList()});
         }
 
         [HttpDelete]
         [Route("DeleteSignature")]
-        public async Task<IActionResult> DeleteSignatureAsync([FromQuery]string token, int signatureId)
+        public async Task<IActionResult> DeleteSignatureAsync([FromQuery] string token, int signatureId)
         {
             await _userService.DeleteSignatureAsync(token, signatureId);
             return StatusCode(204);
@@ -57,15 +60,17 @@ namespace MailerWeb.Controllers
 
         [HttpPost]
         [Route("EditSignature")]
-        public async Task<IActionResult> EditSignatureAsync([FromBody]EditSignatureData data)
+        public async Task<IActionResult> EditSignatureAsync([FromBody] EditSignatureData data)
         {
             var signature = await _userService.EditSignatureAsync(data.Token, data.SignatureId, data.NewSignature);
-            return StatusCode(200, new SignaturesResponse() { Code = 0, Status = 200, Count = 1, Signatures = new List<Signature>() { signature } });
+            return StatusCode(200,
+                new SignaturesResponse
+                    {Code = 0, Status = 200, Count = 1, Signatures = new List<Signature> {signature}});
         }
 
         [HttpPost]
         [Route("EditNames")]
-        public async Task<IActionResult> EditNames([FromBody]EditNameData data)
+        public async Task<IActionResult> EditNames([FromBody] EditNameData data)
         {
             await _userService.EditName(data.Token, data.Name);
             return StatusCode(204);

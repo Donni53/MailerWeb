@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using MailerWeb.Models;
 using MailerWeb.Models.Requests;
 using MailerWeb.Models.Responses;
 using MailerWeb.Services;

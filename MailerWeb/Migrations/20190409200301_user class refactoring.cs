@@ -8,52 +8,53 @@ namespace MailerWeb.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Users_ConnectionConfigurations_ConnectionSettingsId",
-                table: "Users");
+                "FK_Users_ConnectionConfigurations_ConnectionSettingsId",
+                "Users");
 
             migrationBuilder.DropForeignKey(
-                name: "FK_Users_Settings_SettingsId",
-                table: "Users");
+                "FK_Users_Settings_SettingsId",
+                "Users");
 
             migrationBuilder.DropTable(
-                name: "Settings");
+                "Settings");
 
             migrationBuilder.DropIndex(
-                name: "IX_Users_SettingsId",
-                table: "Users");
+                "IX_Users_SettingsId",
+                "Users");
 
             migrationBuilder.DropColumn(
-                name: "Nickname",
-                table: "Users");
+                "Nickname",
+                "Users");
 
             migrationBuilder.DropColumn(
-                name: "SettingsId",
-                table: "Users");
+                "SettingsId",
+                "Users");
 
             migrationBuilder.AlterColumn<string>(
-                name: "Password",
-                table: "Users",
+                "Password",
+                "Users",
                 nullable: true,
                 oldClrType: typeof(string));
 
             migrationBuilder.AlterColumn<string>(
-                name: "Login",
-                table: "Users",
+                "Login",
+                "Users",
                 nullable: true,
                 oldClrType: typeof(string));
 
             migrationBuilder.AlterColumn<int>(
-                name: "ConnectionSettingsId",
-                table: "Users",
+                "ConnectionSettingsId",
+                "Users",
                 nullable: true,
                 oldClrType: typeof(int));
 
             migrationBuilder.CreateTable(
-                name: "EncryptedPassword",
-                columns: table => new
+                "EncryptedPassword",
+                table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy",
+                            SqlServerValueGenerationStrategy.IdentityColumn),
                     Password = table.Column<string>(nullable: false),
                     UserId = table.Column<int>(nullable: true)
                 },
@@ -61,23 +62,23 @@ namespace MailerWeb.Migrations
                 {
                     table.PrimaryKey("PK_EncryptedPassword", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_EncryptedPassword_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
+                        "FK_EncryptedPassword_Users_UserId",
+                        x => x.UserId,
+                        "Users",
+                        "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_EncryptedPassword_UserId",
-                table: "EncryptedPassword",
-                column: "UserId");
+                "IX_EncryptedPassword_UserId",
+                "EncryptedPassword",
+                "UserId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Users_ConnectionConfigurations_ConnectionSettingsId",
-                table: "Users",
-                column: "ConnectionSettingsId",
-                principalTable: "ConnectionConfigurations",
+                "FK_Users_ConnectionConfigurations_ConnectionSettingsId",
+                "Users",
+                "ConnectionSettingsId",
+                "ConnectionConfigurations",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
         }
@@ -85,76 +86,74 @@ namespace MailerWeb.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Users_ConnectionConfigurations_ConnectionSettingsId",
-                table: "Users");
+                "FK_Users_ConnectionConfigurations_ConnectionSettingsId",
+                "Users");
 
             migrationBuilder.DropTable(
-                name: "EncryptedPassword");
+                "EncryptedPassword");
 
             migrationBuilder.AlterColumn<string>(
-                name: "Password",
-                table: "Users",
+                "Password",
+                "Users",
                 nullable: false,
                 oldClrType: typeof(string),
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
-                name: "Login",
-                table: "Users",
+                "Login",
+                "Users",
                 nullable: false,
                 oldClrType: typeof(string),
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<int>(
-                name: "ConnectionSettingsId",
-                table: "Users",
+                "ConnectionSettingsId",
+                "Users",
                 nullable: false,
                 oldClrType: typeof(int),
                 oldNullable: true);
 
             migrationBuilder.AddColumn<string>(
-                name: "Nickname",
-                table: "Users",
+                "Nickname",
+                "Users",
                 nullable: true);
 
             migrationBuilder.AddColumn<int>(
-                name: "SettingsId",
-                table: "Users",
+                "SettingsId",
+                "Users",
                 nullable: true);
 
             migrationBuilder.CreateTable(
-                name: "Settings",
-                columns: table => new
+                "Settings",
+                table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:ValueGenerationStrategy",
+                            SqlServerValueGenerationStrategy.IdentityColumn),
                     Localization = table.Column<string>(nullable: true),
                     Notifications = table.Column<bool>(nullable: false),
                     Theme = table.Column<string>(nullable: true)
                 },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Settings", x => x.Id);
-                });
+                constraints: table => { table.PrimaryKey("PK_Settings", x => x.Id); });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_SettingsId",
-                table: "Users",
-                column: "SettingsId");
+                "IX_Users_SettingsId",
+                "Users",
+                "SettingsId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Users_ConnectionConfigurations_ConnectionSettingsId",
-                table: "Users",
-                column: "ConnectionSettingsId",
-                principalTable: "ConnectionConfigurations",
+                "FK_Users_ConnectionConfigurations_ConnectionSettingsId",
+                "Users",
+                "ConnectionSettingsId",
+                "ConnectionConfigurations",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
-                name: "FK_Users_Settings_SettingsId",
-                table: "Users",
-                column: "SettingsId",
-                principalTable: "Settings",
+                "FK_Users_Settings_SettingsId",
+                "Users",
+                "SettingsId",
+                "Settings",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
         }

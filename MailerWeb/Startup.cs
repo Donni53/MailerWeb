@@ -32,12 +32,12 @@ namespace MailerWeb
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v0.1", new OpenApiInfo
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "Mailer API",
-                    Version = "v0.1",
+                    Version = "v1",
                     Description = "Imap and smtp web API app using Mailkit",
-                    Contact = new OpenApiContact()
+                    Contact = new OpenApiContact
                     {
                         Name = "Daniil Novitskiy",
                         Email = "donnipc@outlook.com",
@@ -52,7 +52,7 @@ namespace MailerWeb
             services.AddScoped<ISmtpService, SmtpService>();
             services.AddScoped<IImapMailService, ImapMailService>();
             services.AddScoped<ISmtpMailService, SmtpMailService>();
-            services.AddScoped<IAuthService,AuthService>();
+            services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddMemoryCache();
@@ -66,10 +66,7 @@ namespace MailerWeb
             else
                 app.UseHsts();
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v0.1/swagger.json", "Mailer API V0.1");
-            });
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "Mailer API V1"); });
             app.ConfigureCustomExceptionMiddleware();
             app.UseHttpsRedirection();
             app.UseMvc();

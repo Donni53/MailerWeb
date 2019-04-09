@@ -54,44 +54,40 @@ namespace MailerWeb.Services
                 else
                 {
                     if (credentials.NewConnectionSettings && credentials.ConnectionSettings != null)
-                    {
                         connectionConfiguration = credentials.ConnectionSettings;
-                    }
                     else
-                    {
                         connectionConfiguration = _connectionDataRepository.GetByAddress(
                             credentials.ConnectionSettings.ImapConfiguration.Address,
                             credentials.ConnectionSettings.SmtpConfiguration.Address);
-                    }
                 }
             }
             else
             {
                 if (credentials.NewConnectionSettings && credentials.ConnectionSettings != null)
-                {
                     connectionConfiguration = credentials.ConnectionSettings;
-                }
                 else
-                {
                     connectionConfiguration = dbUser.ConnectionSettings;
-                }
             }
 
             _imapService.AcceptAllSslCertificates(true);
-            await _imapService.ConnectAsync(connectionConfiguration.ImapConfiguration.Address, connectionConfiguration.ImapConfiguration.Port, true);
+            await _imapService.ConnectAsync(connectionConfiguration.ImapConfiguration.Address,
+                connectionConfiguration.ImapConfiguration.Port, true);
             await _imapService.AuthenticateAsync(credentials.Login, credentials.Password);
 
             _smtpService.AcceptAllSslCertificates(true);
-            await _smtpService.ConnectAsync(connectionConfiguration.SmtpConfiguration.Address, connectionConfiguration.SmtpConfiguration.Port, true);
+            await _smtpService.ConnectAsync(connectionConfiguration.SmtpConfiguration.Address,
+                connectionConfiguration.SmtpConfiguration.Port, true);
             await _smtpService.AuthenticateAsync(credentials.Login, credentials.Password);
 
             var myRijndael = new RijndaelManaged();
             myRijndael.GenerateKey();
             myRijndael.GenerateIV();
-            var encryptedPassword = Convert.ToBase64String(RijndaelManager.EncryptStringToBytes(credentials.Password, myRijndael.Key, myRijndael.IV));
+            var encryptedPassword =
+                Convert.ToBase64String(
+                    RijndaelManager.EncryptStringToBytes(credentials.Password, myRijndael.Key, myRijndael.IV));
             var base64Key = Convert.ToBase64String(myRijndael.Key);
             var base64Iv = Convert.ToBase64String(myRijndael.IV);
-            var hashedPassword = MailerWeb.Security.Sha256.GetHashString(credentials.Password);
+            var hashedPassword = Sha256.GetHashString(credentials.Password);
             var encryptedPasswordEntity = new EncryptedPassword(encryptedPassword);
 
             if (dbUser != null)
@@ -107,7 +103,7 @@ namespace MailerWeb.Services
                 {
                     Login = credentials.Login,
                     Password = hashedPassword,
-                    ConnectionSettings = connectionConfiguration,
+                    ConnectionSettings = connectionConfiguration
                 };
                 dbUser.EncryptedPasswords.Add(encryptedPasswordEntity);
                 await _dataRepository.AddAsync(dbUser);
@@ -149,7 +145,7 @@ namespace MailerWeb.Services
 
             var password = RijndaelManager.DecryptStringFromBytes(Convert.FromBase64String(encryptedPassword?.Password),
                 Convert.FromBase64String(key), Convert.FromBase64String(vector));
-            return new RefreshData() { User = dbUser, Password = password };
+            return new RefreshData {User = dbUser, Password = password};
         }
 
         public async Task<ImapClient> ImapRefresh(string token)

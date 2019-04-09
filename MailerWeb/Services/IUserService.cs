@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using MailerWeb.Models;
 
@@ -14,6 +12,5 @@ namespace MailerWeb.Services
         Task DeleteSignatureAsync(string token, int signatureId);
         Task<Signature> EditSignatureAsync(string token, int signatureId, Signature newSignature);
         Task EditName(string token, string name);
-
     }
 }
