@@ -14,9 +14,9 @@ namespace MailerWeb.Services
     {
         private readonly IAuthService _authService;
         private readonly IImapService _imapService;
-        private readonly IMemoryCache _memoryCache;
+        private readonly IMemoryCacheDataService _memoryCache;
 
-        public ImapMailService(IMemoryCache memoryCache, IImapService imapService, IAuthService authService)
+        public ImapMailService(IMemoryCacheDataService memoryCache, IImapService imapService, IAuthService authService)
         {
             _memoryCache = memoryCache;
             _imapService = imapService;
@@ -25,10 +25,10 @@ namespace MailerWeb.Services
 
         public async Task RefreshImapAsync(string token)
         {
-            if (!_memoryCache.TryGetValue($"{token}:imap", out ImapClient client))
+            if (!_memoryCache.TryGetValue($"{token}:imap", out var client))
                 client = await _authService.ImapRefresh(token);
 
-            _imapService.Client = client;
+            _imapService.Client = (ImapClient)client;
         }
 
 

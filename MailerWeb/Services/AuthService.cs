@@ -20,19 +20,18 @@ namespace MailerWeb.Services
         private readonly IConnectionDataRepository<ConnectionConfiguration> _connectionDataRepository;
         private readonly IUserRepository<User> _dataRepository;
         private readonly IImapService _imapService;
-        private readonly IMemoryCache _memoryCache;
         private readonly ISmtpService _smtpService;
+        private readonly IMemoryCacheDataService _memoryCache;
 
         public AuthService(
             IUserRepository<User> dataRepository, IImapService imapService, ISmtpService smtpService,
-            IMemoryCache memoryCache,
-            IConnectionDataRepository<ConnectionConfiguration> connectionDataRepository)
+            IConnectionDataRepository<ConnectionConfiguration> connectionDataRepository, IMemoryCacheDataService memoryCache)
         {
             _dataRepository = dataRepository;
             _imapService = imapService;
             _smtpService = smtpService;
-            _memoryCache = memoryCache;
             _connectionDataRepository = connectionDataRepository;
+            _memoryCache = memoryCache;
         }
 
 
@@ -105,14 +104,8 @@ namespace MailerWeb.Services
 
             var token = Jwt.GenerateToken(credentials.Login, encryptedPasswordData.Key, encryptedPasswordData.Iv, encryptedPasswordEntity.Id);
 
-            var options = new MemoryCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(600),
-                SlidingExpiration = TimeSpan.FromSeconds(600)
-            };
-
-            _memoryCache.Set($"{token}:imap", _imapService.Client, options);
-            _memoryCache.Set($"{token}:smtp", _smtpService.Client, options);
+            _memoryCache.Set($"{token}:imap", _imapService.Client);
+            _memoryCache.Set($"{token}:smtp", _smtpService.Client);
 
             return token;
         }
@@ -149,13 +142,7 @@ namespace MailerWeb.Services
                 refreshData.User.ConnectionSettings.ImapConfiguration.Port, true);
             await _imapService.AuthenticateAsync(refreshData.User.Login, refreshData.Password);
 
-            var options = new MemoryCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(600),
-                SlidingExpiration = TimeSpan.FromSeconds(600)
-            };
-
-            _memoryCache.Set($"{token}:imap", _imapService.Client, options);
+            _memoryCache.Set($"{token}:imap", _imapService.Client);
 
             return _imapService.Client;
         }
@@ -170,14 +157,7 @@ namespace MailerWeb.Services
                 refreshData.User.ConnectionSettings.SmtpConfiguration.Port, true);
             await _smtpService.AuthenticateAsync(refreshData.User.Login, refreshData.Password);
 
-
-            var options = new MemoryCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(600),
-                SlidingExpiration = TimeSpan.FromSeconds(600)
-            };
-
-            _memoryCache.Set($"{token}:smtp", _smtpService.Client, options);
+            _memoryCache.Set($"{token}:smtp", _smtpService.Client);
 
             return _smtpService.Client;
         }

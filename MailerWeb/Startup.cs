@@ -54,6 +54,7 @@ namespace MailerWeb
             services.AddScoped<ISmtpMailService, SmtpMailService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IMemoryCacheDataService, MemoryCacheDataService>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddMemoryCache();
         }

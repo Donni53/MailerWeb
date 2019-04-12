@@ -11,10 +11,10 @@ namespace MailerWeb.Services
     public class SmtpMailService : ISmtpMailService
     {
         private readonly AuthService _authService;
-        private readonly IMemoryCache _memoryCache;
+        private readonly IMemoryCacheDataService _memoryCache;
         private readonly ISmtpService _smtpService;
 
-        public SmtpMailService(ISmtpService smtpService, IMemoryCache memoryCache, AuthService authService)
+        public SmtpMailService(ISmtpService smtpService, IMemoryCacheDataService memoryCache, AuthService authService)
         {
             _smtpService = smtpService;
             _memoryCache = memoryCache;
@@ -24,10 +24,10 @@ namespace MailerWeb.Services
 
         public async Task RefreshSmtpAsync(string token)
         {
-            if (!_memoryCache.TryGetValue($"{token}:smtp", out SmtpClient client))
+            if (!_memoryCache.TryGetValue($"{token}:smtp", out var client))
                 client = await _authService.SmtpRefresh(token);
 
-            _smtpService.Client = client;
+            _smtpService.Client = (SmtpClient)client;
         }
 
         public async Task SendEmailAsync(string token, Address from, IList<Address> to, string subject, string htmlBody)
