@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using MailerWeb.Models.Repository;
+using Microsoft.EntityFrameworkCore;
 
 namespace MailerWeb.Models.DataManager
 {
@@ -14,16 +15,16 @@ namespace MailerWeb.Models.DataManager
             _db = db;
         }
 
-        public ConnectionConfiguration GetByDomain(string domain)
+        public async Task<ConnectionConfiguration> GetByDomain(string domain)
         {
-            return _db.ConnectionConfigurations
-                .FirstOrDefault(e => string.Equals(e.DomainsList.FirstOrDefault().Domain, domain,
+            return await _db.ConnectionConfigurations
+                .FirstOrDefaultAsync(e => string.Equals(e.DomainsList.FirstOrDefault().Domain, domain,
                     StringComparison.CurrentCultureIgnoreCase));
         }
 
-        public ConnectionConfiguration GetByAddress(string imapAddress, string smtpAddress)
+        public async Task<ConnectionConfiguration> GetByAddress(string imapAddress, string smtpAddress)
         {
-            return _db.ConnectionConfigurations.FirstOrDefault(e =>
+            return await _db.ConnectionConfigurations.FirstOrDefaultAsync(e =>
                 string.Equals(e.ImapConfiguration.Address, imapAddress, StringComparison.CurrentCultureIgnoreCase)
                 && string.Equals(e.SmtpConfiguration.Address, smtpAddress, StringComparison.CurrentCultureIgnoreCase));
         }

@@ -4,8 +4,8 @@ namespace MailerWeb.Models.Repository
 {
     public interface IConnectionDataRepository<TEntity>
     {
-        TEntity GetByDomain(string domain);
-        TEntity GetByAddress(string imapAddress, string smtpAddress);
+        Task<TEntity> GetByDomain(string domain);
+        Task<TEntity> GetByAddress(string imapAddress, string smtpAddress);
         Task AddAsync(TEntity entity);
         Task SaveAsync();
     }

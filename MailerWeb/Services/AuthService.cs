@@ -36,38 +36,37 @@ namespace MailerWeb.Services
         }
 
 
-        public async Task<string> SignInAsync(SignCredentials credentials)
+        public async Task<ConnectionConfiguration> GetConnectionConfiguration(User dbUser, SignCredentials credentials)
         {
-            var dbUser = await _dataRepository.GetByLoginAsync(credentials.Login);
-
-            ConnectionConfiguration connectionConfiguration = null;
-
             if (dbUser == null)
             {
                 if (credentials.ConnectionSettings == null)
                 {
                     var mailAddress = new MailAddress(credentials.Login);
-                    connectionConfiguration = _connectionDataRepository.GetByDomain(mailAddress.Host);
-                    if (connectionConfiguration == null)
-                        throw new ConnectionDataException();
+                    return await _connectionDataRepository.GetByDomain(mailAddress.Host);
                 }
-                else
-                {
-                    if (credentials.NewConnectionSettings && credentials.ConnectionSettings != null)
-                        connectionConfiguration = credentials.ConnectionSettings;
-                    else
-                        connectionConfiguration = _connectionDataRepository.GetByAddress(
-                            credentials.ConnectionSettings.ImapConfiguration.Address,
-                            credentials.ConnectionSettings.SmtpConfiguration.Address);
-                }
+
+                if (credentials.NewConnectionSettings)
+                    return credentials.ConnectionSettings;
+                return await _connectionDataRepository.GetByAddress(
+                    credentials.ConnectionSettings.ImapConfiguration.Address,
+                    credentials.ConnectionSettings.SmtpConfiguration.Address);
             }
-            else
-            {
-                if (credentials.NewConnectionSettings && credentials.ConnectionSettings != null)
-                    connectionConfiguration = credentials.ConnectionSettings;
-                else
-                    connectionConfiguration = dbUser.ConnectionSettings;
-            }
+
+            if (credentials.NewConnectionSettings && credentials.ConnectionSettings != null)
+                return credentials.ConnectionSettings;
+            return dbUser.ConnectionSettings;
+        }
+
+
+        public async Task<string> SignInAsync(SignCredentials credentials)
+        {
+            var dbUser = await _dataRepository.GetByLoginAsync(credentials.Login);
+
+            var connectionConfiguration = await GetConnectionConfiguration(dbUser, credentials);
+
+            if (connectionConfiguration == null)
+                throw new ConnectionDataException();
 
             _imapService.AcceptAllSslCertificates(true);
             await _imapService.ConnectAsync(connectionConfiguration.ImapConfiguration.Address,
@@ -79,16 +78,9 @@ namespace MailerWeb.Services
                 connectionConfiguration.SmtpConfiguration.Port, true);
             await _smtpService.AuthenticateAsync(credentials.Login, credentials.Password);
 
-            var myRijndael = new RijndaelManaged();
-            myRijndael.GenerateKey();
-            myRijndael.GenerateIV();
-            var encryptedPassword =
-                Convert.ToBase64String(
-                    RijndaelManager.EncryptStringToBytes(credentials.Password, myRijndael.Key, myRijndael.IV));
-            var base64Key = Convert.ToBase64String(myRijndael.Key);
-            var base64Iv = Convert.ToBase64String(myRijndael.IV);
+            var encryptedPasswordData = RijndaelManager.EncryptStringToBase64String(credentials.Password);
             var hashedPassword = Sha256.GetHashString(credentials.Password);
-            var encryptedPasswordEntity = new EncryptedPassword(encryptedPassword);
+            var encryptedPasswordEntity = new EncryptedPassword(encryptedPasswordData.Data);
 
             if (dbUser != null)
             {
@@ -111,7 +103,7 @@ namespace MailerWeb.Services
 
             await _dataRepository.SaveAsync();
 
-            var token = Jwt.GenerateToken(credentials.Login, base64Key, base64Iv, encryptedPasswordEntity.Id);
+            var token = Jwt.GenerateToken(credentials.Login, encryptedPasswordData.Key, encryptedPasswordData.Iv, encryptedPasswordEntity.Id);
 
             var options = new MemoryCacheEntryOptions
             {
