@@ -20,12 +20,6 @@ namespace MailerWeb.Controllers
             _imapMailService = imapMailService;
         }
 
-        [HttpGet]
-        public IActionResult Get()
-        {
-            return StatusCode(404);
-        }
-
 
         [HttpPost]
         [Route("SignIn")]
