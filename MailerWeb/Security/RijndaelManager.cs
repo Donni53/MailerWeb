@@ -7,7 +7,6 @@ namespace MailerWeb.Security
 {
     public class RijndaelManager
     {
-
         public static RijndaelEncrypted EncryptStringToBase64String(string plainText)
         {
             var myRijndael = new RijndaelManaged();
@@ -16,7 +15,11 @@ namespace MailerWeb.Security
             var encryptedPlainText =
                 Convert.ToBase64String(
                     EncryptStringToBytes(plainText, myRijndael.Key, myRijndael.IV));
-            return new RijndaelEncrypted() { Data = encryptedPlainText, Key = Convert.ToBase64String(myRijndael.Key), Iv = Convert.ToBase64String(myRijndael.IV) };
+            return new RijndaelEncrypted
+            {
+                Data = encryptedPlainText, Key = Convert.ToBase64String(myRijndael.Key),
+                Iv = Convert.ToBase64String(myRijndael.IV)
+            };
         }
 
         public static byte[] EncryptStringToBytes(string plainText, byte[] Key, byte[] IV)

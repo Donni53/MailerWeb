@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Net.Mail;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using MailerWeb.Models;
 using MailerWeb.Models.Exceptions;
@@ -10,7 +9,6 @@ using MailerWeb.Models.Repository;
 using MailerWeb.Models.Requests;
 using MailerWeb.Security;
 using MailKit.Net.Imap;
-using Microsoft.Extensions.Caching.Memory;
 using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
 namespace MailerWeb.Services
@@ -20,12 +18,13 @@ namespace MailerWeb.Services
         private readonly IConnectionDataRepository<ConnectionConfiguration> _connectionDataRepository;
         private readonly IUserRepository<User> _dataRepository;
         private readonly IImapService _imapService;
-        private readonly ISmtpService _smtpService;
         private readonly IMemoryCacheDataService _memoryCache;
+        private readonly ISmtpService _smtpService;
 
         public AuthService(
             IUserRepository<User> dataRepository, IImapService imapService, ISmtpService smtpService,
-            IConnectionDataRepository<ConnectionConfiguration> connectionDataRepository, IMemoryCacheDataService memoryCache)
+            IConnectionDataRepository<ConnectionConfiguration> connectionDataRepository,
+            IMemoryCacheDataService memoryCache)
         {
             _dataRepository = dataRepository;
             _imapService = imapService;
@@ -102,7 +101,8 @@ namespace MailerWeb.Services
 
             await _dataRepository.SaveAsync();
 
-            var token = Jwt.GenerateToken(credentials.Login, encryptedPasswordData.Key, encryptedPasswordData.Iv, encryptedPasswordEntity.Id);
+            var token = Jwt.GenerateToken(credentials.Login, encryptedPasswordData.Key, encryptedPasswordData.Iv,
+                encryptedPasswordEntity.Id);
 
             _memoryCache.Set($"{token}:imap", _imapService.Client);
             _memoryCache.Set($"{token}:smtp", _smtpService.Client);

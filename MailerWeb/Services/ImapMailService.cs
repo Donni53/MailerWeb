@@ -4,7 +4,6 @@ using MailerWeb.Models;
 using MailerWeb.Models.Exceptions;
 using MailKit;
 using MailKit.Net.Imap;
-using Microsoft.Extensions.Caching.Memory;
 using MimeKit;
 using MailFolder = MailerWeb.Models.MailFolder;
 
@@ -28,7 +27,7 @@ namespace MailerWeb.Services
             if (!_memoryCache.TryGetValue($"{token}:imap", out var client))
                 client = await _authService.ImapRefresh(token);
 
-            _imapService.Client = (ImapClient)client;
+            _imapService.Client = (ImapClient) client;
         }
 
 

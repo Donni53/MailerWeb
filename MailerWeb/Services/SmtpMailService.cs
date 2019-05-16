@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using MailerWeb.Models;
 using MailKit.Net.Smtp;
-using Microsoft.Extensions.Caching.Memory;
 using MimeKit;
 using MimeKit.Text;
 
@@ -27,7 +26,7 @@ namespace MailerWeb.Services
             if (!_memoryCache.TryGetValue($"{token}:smtp", out var client))
                 client = await _authService.SmtpRefresh(token);
 
-            _smtpService.Client = (SmtpClient)client;
+            _smtpService.Client = (SmtpClient) client;
         }
 
         public async Task SendEmailAsync(string token, Address from, IList<Address> to, string subject, string htmlBody)

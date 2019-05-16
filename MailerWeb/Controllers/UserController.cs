@@ -58,7 +58,7 @@ namespace MailerWeb.Controllers
             return StatusCode(204);
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("EditSignature")]
         public async Task<IActionResult> EditSignatureAsync([FromBody] EditSignatureData data)
         {
@@ -68,7 +68,7 @@ namespace MailerWeb.Controllers
                     {Code = 0, Status = 200, Count = 1, Signatures = new List<Signature> {signature}});
         }
 
-        [HttpPost]
+        [HttpPut]
         [Route("EditNames")]
         public async Task<IActionResult> EditNames([FromBody] EditNameData data)
         {
