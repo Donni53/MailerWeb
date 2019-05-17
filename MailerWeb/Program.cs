@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace MailerWeb
+namespace MailerWeb.Server
 {
     public class Program
     {

@@ -1,11 +1,11 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using MailerWeb.Models.Requests;
-using MailerWeb.Models.Responses;
-using MailerWeb.Services;
+using MailerWeb.Server.Services;
+using MailerWeb.Shared.Models.Requests;
+using MailerWeb.Shared.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MailerWeb.Controllers
+namespace MailerWeb.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

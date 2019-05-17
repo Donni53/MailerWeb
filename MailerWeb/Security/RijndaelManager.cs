@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
-using MailerWeb.Models;
+using MailerWeb.Shared.Models;
 
-namespace MailerWeb.Security
+namespace MailerWeb.Server.Security
 {
     public class RijndaelManager
     {

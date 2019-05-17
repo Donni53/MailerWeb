@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace MailerWeb.Security
+namespace MailerWeb.Server.Security
 {
     public static class Sha256
     {

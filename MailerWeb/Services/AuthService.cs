@@ -3,15 +3,15 @@ using System.Linq;
 using System.Net.Mail;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using MailerWeb.Models;
-using MailerWeb.Models.Exceptions;
-using MailerWeb.Models.Repository;
-using MailerWeb.Models.Requests;
-using MailerWeb.Security;
+using MailerWeb.DAL.Repository;
+using MailerWeb.Server.Security;
+using MailerWeb.Shared.Models;
+using MailerWeb.Shared.Models.Exceptions;
+using MailerWeb.Shared.Models.Requests;
 using MailKit.Net.Imap;
 using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
-namespace MailerWeb.Services
+namespace MailerWeb.Server.Services
 {
     public class AuthService : IAuthService
     {

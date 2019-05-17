@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
-using MailerWeb.Models.Exceptions;
-using MailerWeb.Models.Responses;
+using MailerWeb.Shared.Models.Exceptions;
+using MailerWeb.Shared.Models.Responses;
 using MailKit;
 using MailKit.Security;
 using Microsoft.AspNetCore.Http;
 
-namespace MailerWeb.CustomExceptionMiddleware
+namespace MailerWeb.Server.CustomExceptionMiddleware
 {
     public class ExceptionMiddleware
     {

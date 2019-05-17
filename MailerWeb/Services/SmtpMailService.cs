@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using MailerWeb.Models;
+using MailerWeb.Shared.Models;
 using MailKit.Net.Smtp;
 using MimeKit;
 using MimeKit.Text;
 
-namespace MailerWeb.Services
+namespace MailerWeb.Server.Services
 {
     public class SmtpMailService : ISmtpMailService
     {

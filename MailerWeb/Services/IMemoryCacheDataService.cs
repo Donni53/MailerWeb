@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 
-namespace MailerWeb.Services
+namespace MailerWeb.Server.Services
 {
     public interface IMemoryCacheDataService
     {

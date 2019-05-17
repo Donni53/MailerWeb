@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using MailKit.Net.Smtp;
 using MimeKit;
 
-namespace MailerWeb.Services
+namespace MailerWeb.Server.Services
 {
     public class SmtpService : ISmtpService
     {

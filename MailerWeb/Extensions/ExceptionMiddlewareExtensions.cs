@@ -1,7 +1,7 @@
-﻿using MailerWeb.CustomExceptionMiddleware;
+﻿using MailerWeb.Server.CustomExceptionMiddleware;
 using Microsoft.AspNetCore.Builder;
 
-namespace MailerWeb.Extensions
+namespace MailerWeb.Server.Extensions
 {
     public static class ExceptionMiddlewareExtensions
     {

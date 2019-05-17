@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using MailKit;
 using MailKit.Net.Imap;
 
-namespace MailerWeb.Services
+namespace MailerWeb.Server.Services
 {
     public interface IImapService
     {

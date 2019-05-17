@@ -1,9 +1,10 @@
 ﻿using System;
-using MailerWeb.Extensions;
-using MailerWeb.Models;
-using MailerWeb.Models.DataManager;
-using MailerWeb.Models.Repository;
-using MailerWeb.Services;
+using MailerWeb.DAL;
+using MailerWeb.DAL.DataManager;
+using MailerWeb.DAL.Repository;
+using MailerWeb.Server.Extensions;
+using MailerWeb.Server.Services;
+using MailerWeb.Shared.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
-namespace MailerWeb
+namespace MailerWeb.Server
 {
     public class Startup
     {

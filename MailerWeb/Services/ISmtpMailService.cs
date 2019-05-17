@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using MailerWeb.Models;
+using MailerWeb.Shared.Models;
 
-namespace MailerWeb.Services
+namespace MailerWeb.Server.Services
 {
     public interface ISmtpMailService
     {

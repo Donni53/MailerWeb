@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using MailerWeb.Models;
+using MailerWeb.Shared.Models;
 using MimeKit;
 
-namespace MailerWeb.Services
+namespace MailerWeb.Server.Services
 {
     public interface IImapMailService
     {

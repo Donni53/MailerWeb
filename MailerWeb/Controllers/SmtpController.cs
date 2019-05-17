@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
-using MailerWeb.Models.Requests;
-using MailerWeb.Services;
+using MailerWeb.Server.Services;
+using MailerWeb.Shared.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MailerWeb.Controllers
+namespace MailerWeb.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -14,13 +14,6 @@ namespace MailerWeb.Controllers
         public SmtpController(ISmtpMailService smtpMailService)
         {
             _smtpMailService = smtpMailService;
-        }
-
-
-        [HttpGet]
-        public IActionResult Get()
-        {
-            return StatusCode(404);
         }
 
         [HttpPost]

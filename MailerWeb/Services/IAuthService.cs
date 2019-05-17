@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
-using MailerWeb.Models;
-using MailerWeb.Models.Requests;
+using MailerWeb.Shared.Models;
+using MailerWeb.Shared.Models.Requests;
 using MailKit.Net.Imap;
 using MailKit.Net.Smtp;
 
-namespace MailerWeb.Services
+namespace MailerWeb.Server.Services
 {
     public interface IAuthService
     {

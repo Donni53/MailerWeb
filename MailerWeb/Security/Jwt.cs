@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 
-namespace MailerWeb.Security
+namespace MailerWeb.Server.Security
 {
     public class Jwt
     {

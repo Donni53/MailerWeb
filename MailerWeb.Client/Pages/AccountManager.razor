@@ -1,2 +1,65 @@
 ﻿@page "/accounts"
 
+@using Cloudcrate.AspNetCore.Blazor.Browser.Storage;
+
+@inject HttpClient Http
+@inject LocalStorage Storage
+
+<h1>Accounts Manager</h1>
+<div>
+    <div class="form-row">
+        <div class="form-group">
+            <input type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" placeholder="Enter email">
+            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+        </div>
+        <div class="form-group">
+            <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="additionalSettings" bind="@ShowAdditionalSettings" />
+            <label class="form-check-label" for="additionalSettings">Show Additional Settings</label>
+        </div>
+    </div>
+    @if (ShowAdditionalSettings)
+    {
+        <div class="form-row">
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Enter Imap Address">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Enter Imap Port">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Enter Smtp Address">
+            </div>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Enter Smtp Port">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="updateSettings" />
+                <label class="form-check-label" for="updateSettings">Update Connection Settings</label>
+            </div>
+        </div>
+    }
+    <button class="btn btn-primary" "@(async () => await SignIn())">Sign In</button>
+
+</div>
+
+
+@functions
+{
+    private bool ShowAdditionalSettings { get; set; } = false;
+
+    private async Task SignIn()
+    {
+        /*localities = await Http.GetJsonAsync<List<Locality>>("api/map/getalllocalities");
+        selectedId = localities[0].Id;
+        StateHasChanged();*/
+    }
+}

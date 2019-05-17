@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using MailerWeb.Models;
-using MailerWeb.Models.Exceptions;
+using MailerWeb.Shared.Models;
+using MailerWeb.Shared.Models.Exceptions;
 using MailKit;
 using MailKit.Net.Imap;
 using MimeKit;
-using MailFolder = MailerWeb.Models.MailFolder;
+using MailFolder = MailerWeb.Shared.Models.MailFolder;
 
-namespace MailerWeb.Services
+namespace MailerWeb.Server.Services
 {
     public class ImapMailService : IImapMailService
     {

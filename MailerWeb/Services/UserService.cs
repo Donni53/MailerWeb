@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MailerWeb.Models;
-using MailerWeb.Models.Repository;
-using MailerWeb.Security;
+using MailerWeb.DAL.Repository;
+using MailerWeb.Server.Security;
+using MailerWeb.Shared.Models;
 
-namespace MailerWeb.Services
+namespace MailerWeb.Server.Services
 {
     public class UserService : IUserService
     {
