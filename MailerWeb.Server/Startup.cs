@@ -34,11 +34,11 @@ namespace MailerWeb.Server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().AddNewtonsoftJson();
-            services.AddResponseCompression(opts =>
+            /*services.AddResponseCompression(opts =>
             {
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
                     new[] { "application/octet-stream" });
-            });
+            });*/
             var connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<DataBaseContext>(options =>
                 options.UseLazyLoadingProxies().UseSqlServer(connection));
@@ -76,7 +76,7 @@ namespace MailerWeb.Server
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseResponseCompression();
+            //app.UseResponseCompression();
 
             if (env.IsDevelopment())
             {

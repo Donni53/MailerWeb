@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace MailerWeb.Shared.Models.Requests
 {
@@ -9,5 +11,6 @@ namespace MailerWeb.Shared.Models.Requests
         [Required] public string Password { get; set; }
         public bool NewConnectionSettings { get; set; }
         public ConnectionConfiguration ConnectionSettings { get; set; }
+
     }
 }
