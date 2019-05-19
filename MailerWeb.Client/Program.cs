@@ -9,10 +9,8 @@ namespace MailerWeb.Client
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IWebAssemblyHostBuilder CreateHostBuilder(string[] args)
-        {
-            return BlazorWebAssemblyHost.CreateDefaultBuilder()
+        public static IWebAssemblyHostBuilder CreateHostBuilder(string[] args) =>
+            BlazorWebAssemblyHost.CreateDefaultBuilder()
                 .UseBlazorStartup<Startup>();
-        }
     }
 }
