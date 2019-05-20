@@ -93,12 +93,12 @@
                     </div>
                 </div>
 
-
-
-                <div class="form-group">
-                    <button class="btn btn-primary" onclick="@(async () => await Load())">LoadMore</button>
-                </div>
-
+                @if(LoadingEnabled)
+                {
+                    <div class="form-group">
+                        <button class="btn btn-primary" onclick="@(async () => await Load())">LoadMore</button>
+                    </div>
+                }
             }
         }
         else
@@ -125,12 +125,24 @@
     private bool IsEnabled { get; set; } = true;
     private int Max { get; set; }
     private List<MailEnvelope> Envelopes { get; set; }
+    private bool LoadingEnabled { get; set; }
+    private int Step { get; set; }
 
 
     protected async Task Changed(string value, int count)
     {
         Selected = value;
-        Max = count - 1;
+        Max = count;
+        if (Max > 50)
+        {
+            Step = 50;
+            LoadingEnabled = true;
+        }
+        else
+        {
+            Step = count;
+            LoadingEnabled = false;
+        }
         Envelopes = null;
         IsEnabled = false;
         await Load();
@@ -150,7 +162,7 @@
             IsError = false;
             IsSuccess = false;
 
-            var response = await Http.Request(HttpMethod.Get, UriHelper.GetBaseUri() + "api/imap/getmessages?token=" + MailerWebCurrentUser.Token + "&min=" + (Max - 50) + "&max=" + Max + "&foldername=" + Selected);
+            var response = await Http.Request(HttpMethod.Get, UriHelper.GetBaseUri() + "api/imap/getmessages?token=" + MailerWebCurrentUser.Token + "&min=" + (Max - Step) + "&max=" + Max + "&foldername=" + Selected);
             if (!response.IsSuccessStatusCode)
             {
                 var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(await response.Content.ReadAsStringAsync());
@@ -173,6 +185,16 @@
             Envelopes.AddRange(successResponse.Envelopes);
 
             Max -= 51;
+            if (Max < 1)
+            {
+                Max = 1;
+                LoadingEnabled = false;
+            }
+
+            if (Max < Step)
+            {
+                Step = Max;
+            }
 
             StateHasChanged();
 
