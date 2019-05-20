@@ -103,25 +103,27 @@
         {
             IsError = false;
             IsSuccess = false;
-            MailerWebCurrentUser = JsonConvert.DeserializeObject<StorageRecord>(Storage["MailerWebCurrentUser"]);
-            var response = await Http.Request(HttpMethod.Get, UriHelper.GetBaseUri() + "api/user/getsignatures?token=" + MailerWebCurrentUser.Token);
-
-            if (!response.IsSuccessStatusCode)
+            if (!string.IsNullOrEmpty(Storage["MailerWebCurrentUser"]))
             {
-                var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(await response.Content.ReadAsStringAsync());
-                Error = response.StatusCode + ": " + errorResponse.UserMessage;
+                MailerWebCurrentUser = JsonConvert.DeserializeObject<StorageRecord>(Storage["MailerWebCurrentUser"]);
+                var response = await Http.Request(HttpMethod.Get, UriHelper.GetBaseUri() + "api/user/getsignatures?token=" + MailerWebCurrentUser.Token);
 
-                IsError = true;
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(await response.Content.ReadAsStringAsync());
+                    Error = response.StatusCode + ": " + errorResponse.UserMessage;
 
-                return;
+                    IsError = true;
+
+                    return;
+                }
+
+                var successResponse = JsonConvert.DeserializeObject<SignaturesResponse>(await response.Content.ReadAsStringAsync());
+
+                Signatures = successResponse.Signatures;
+
+                StateHasChanged();
             }
-
-            var successResponse = JsonConvert.DeserializeObject<SignaturesResponse>(await response.Content.ReadAsStringAsync());
-
-            Signatures = successResponse.Signatures;
-
-            StateHasChanged();
-
         }
         catch (Exception e)
         {

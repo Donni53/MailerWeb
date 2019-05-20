@@ -4,6 +4,11 @@ namespace MailerWeb.Shared.Models
 {
     public class MailFolder
     {
+        public MailFolder()
+        {
+
+        }
+
         public MailFolder(IMailFolder folder)
         {
             Id = folder.Id;

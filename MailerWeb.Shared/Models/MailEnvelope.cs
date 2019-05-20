@@ -6,6 +6,11 @@ namespace MailerWeb.Shared.Models
 {
     public class MailEnvelope
     {
+        public MailEnvelope()
+        {
+
+        }
+
         public MailEnvelope(IMessageSummary messageSummary)
         {
             Index = messageSummary.Index;

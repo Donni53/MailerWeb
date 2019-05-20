@@ -21,6 +21,85 @@
         @if (MailerWebCurrentUser != null)
         {
 
+            @if (Folders != null && Folders.Count > 0)
+            {
+                @if (IsEnabled)
+                {
+                    <div class="form-group">
+                        <div class="list-group">
+                            @foreach (var item in Folders)
+                            {
+                                <button type="button" class="list-group-item list-group-item-action" onclick="@(async () => await Changed(item.Name, item.Count))">
+                                    @item.Name
+                                    <span class="badge badge-primary badge-pill">@item.Unread</span>
+                                    <span class="badge badge-secondary badge-pill">@item.Recent</span>
+                                    <span class="badge badge-info badge-pill">@item.Count</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group">
+                        <div class="alert alert-primary" role="alert">Please, wait...</div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="form-group">
+                    <div class="alert alert-primary" role="alert">Please, wait...</div>
+                </div>
+            }
+
+            @if (IsError)
+            {
+                <div class="form-group">
+                    <div class="alert alert-danger" role="alert">@Error</div>
+                </div>
+            }
+
+            @if (IsSuccess)
+            {
+                <div class="form-group">
+                    <div class="alert alert-success" role="alert">Ok!</div>
+                </div>
+            }
+
+            @if (Envelopes != null && Envelopes.Count > 0)
+            {
+                <div class="form-group">
+                    <div class="list-group">
+                        @foreach (var item in Envelopes)
+                        {
+                            <button type="button" class="list-group-item list-group-item-action" onclick="@(async () => await Open(item.Index, Selected))">
+                                @item.Subject
+                                @if (!item.IsSeen)
+                                {
+                                    <span class="badge badge-pill badge-info">Unseen</span>
+                                }
+                                @if (item.IsAnswered)
+                                {
+                                    <span class="badge badge-pill badge-success">Answered</span>
+                                }
+                                @if (item.IsFlagged)
+                                {
+                                    <span class="badge badge-pill badge-danger">!</span>
+                                }
+                                <span class="badge badge-pill badge-secondary">@item.From[0].Email</span>
+                            </button>
+                        }
+                    </div>
+                </div>
+
+
+
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="@(async () => await Load())">LoadMore</button>
+                </div>
+
+            }
         }
         else
         {
@@ -37,18 +116,112 @@
 
 @functions
 {
+    private string Error { get; set; }
+    private bool IsError { get; set; }
+    private bool IsSuccess { get; set; }
+    private StorageRecord MailerWebCurrentUser { get; set; }
+    private List<MailFolder> Folders { get; set; }
+    private string Selected { get; set; }
+    private bool IsEnabled { get; set; } = true;
+    private int Max { get; set; }
+    private List<MailEnvelope> Envelopes { get; set; }
 
-    StorageRecord MailerWebCurrentUser { get; set; }
 
-    protected override void OnInit()
+    protected async Task Changed(string value, int count)
+    {
+        Selected = value;
+        Max = count - 1;
+        Envelopes = null;
+        IsEnabled = false;
+        await Load();
+        IsEnabled = true;
+        StateHasChanged();
+    }
+
+    private async Task Open(int id, string folder)
+    {
+
+    }
+
+    private async Task Load()
     {
         try
         {
-            MailerWebCurrentUser = JsonConvert.DeserializeObject<StorageRecord>(Storage["MailerWebCurrentUser"]);
+            IsError = false;
+            IsSuccess = false;
+
+            var response = await Http.Request(HttpMethod.Get, UriHelper.GetBaseUri() + "api/imap/getmessages?token=" + MailerWebCurrentUser.Token + "&min=" + (Max - 50) + "&max=" + Max + "&foldername=" + Selected);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(await response.Content.ReadAsStringAsync());
+                Error = response.StatusCode + ": " + errorResponse.UserMessage;
+
+                IsError = true;
+
+                return;
+            }
+
+            var successResponse = JsonConvert.DeserializeObject<EnvelopesResponse>(await response.Content.ReadAsStringAsync());
+
+            if (Envelopes == null)
+            {
+                Envelopes = new List<MailEnvelope>();
+            }
+
+            successResponse.Envelopes.Reverse();
+
+            Envelopes.AddRange(successResponse.Envelopes);
+
+            Max -= 51;
+
+            StateHasChanged();
+
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
+            Error = e.Message;
+            IsError = true;
+        }
+
+    }
+
+
+
+    protected override async void OnInit()
+    {
+        try
+        {
+
+            IsError = false;
+            IsSuccess = false;
+            if (!string.IsNullOrEmpty(Storage["MailerWebCurrentUser"]))
+            {
+                MailerWebCurrentUser = JsonConvert.DeserializeObject<StorageRecord>(Storage["MailerWebCurrentUser"]);
+                var response = await Http.Request(HttpMethod.Get, UriHelper.GetBaseUri() + "api/imap/getfolders?token=" + MailerWebCurrentUser.Token);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(await response.Content.ReadAsStringAsync());
+                    Error = response.StatusCode + ": " + errorResponse.UserMessage;
+
+                    IsError = true;
+
+                    return;
+                }
+
+                var successResponse = JsonConvert.DeserializeObject<FoldersResponse>(await response.Content.ReadAsStringAsync());
+
+                Folders = successResponse.Folders;
+
+                StateHasChanged();
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            Error = e.Message;
+            IsError = true;
         }
     }
 
