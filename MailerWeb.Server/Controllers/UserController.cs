@@ -67,13 +67,5 @@ namespace MailerWeb.Server.Controllers
                 new SignaturesResponse
                     {Code = 0, Status = 200, Count = 1, Signatures = new List<Signature> {signature}});
         }
-
-        [HttpPut]
-        [Route("EditNames")]
-        public async Task<IActionResult> EditNames([FromBody] EditNameData data)
-        {
-            await _userService.EditName(data.Token, data.Name);
-            return StatusCode(204);
-        }
     }
 }

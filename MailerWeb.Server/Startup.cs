@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace MailerWeb.Server
 {
@@ -41,7 +42,10 @@ namespace MailerWeb.Server
             });*/
             var connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<DataBaseContext>(options =>
-                options.UseLazyLoadingProxies().UseSqlServer(connection));
+                {
+                    options.UseLazyLoadingProxies().UseSqlServer(connection);
+                    options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.QueryClientEvaluationWarning));
+                });
 
             services.AddSwaggerGen(c =>
             {

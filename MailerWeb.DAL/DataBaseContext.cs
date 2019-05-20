@@ -1,5 +1,6 @@
 ﻿using MailerWeb.Shared.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace MailerWeb.DAL
 {

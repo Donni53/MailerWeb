@@ -1,1 +1,210 @@
 ﻿@page "/settings"
+
+@using System.Net
+@using Cloudcrate.AspNetCore.Blazor.Browser.Storage;
+@using MailerWeb.Shared.Models
+@using MailerWeb.Shared.Models.Requests;
+@using MailerWeb.Shared.Models.Responses;
+@using Microsoft.AspNetCore.Components
+@using Services
+@using Newtonsoft.Json;
+
+@inject Microsoft.AspNetCore.Blazor.Services.WebAssemblyUriHelper UriHelper
+@inject LocalStorage Storage
+@inject HttpService Http
+
+
+
+<div class="row">
+    <div class="col-md-8">
+        <p class="h1">Settings</p>
+        @if (MailerWebCurrentUser != null)
+        {
+            @if (Signatures != null && Signatures.Count > 0)
+            {
+                <div class="form-group">
+                    <label for="exampleFormControlSelect2">Select signature</label>
+                    <select multiple class="form-control" id="exampleFormControlSelect2" onchange="@ChangedEvent">
+                        @foreach (var item in Signatures)
+                        {
+                            <option value="@item.Id">@item.Name</option>
+                        }
+                    </select>
+                </div>
+            }
+            <div class="form-group">
+                <label for="exampleFormControlInput1">Name</label>
+                <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="John Doe" bind="@Name"/>
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlTextarea1">Signature text</label>
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" bind="@SignatureText"></textarea>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary" onclick="@(async () => await Add())">Add</button>
+                @if (Selected != 0)
+                {
+                    <button class="btn btn-warning" onclick="@(async () => await Edit())">Edit</button>
+                    <button class="btn btn-danger" onclick="@(async () => await Delete())">Delete</button>
+                }
+            </div>
+            @if (IsError)
+            {
+                <div class="form-group">
+                    <div class="alert alert-danger" role="alert">@Error</div>
+                </div>
+            }
+
+            @if (IsSuccess)
+            {
+                <div class="form-group">
+                    <div class="alert alert-success" role="alert">Ok!</div>
+                </div>
+            }
+
+        }
+        else
+        {
+            <div class="form-group">
+                <div class="alert alert-primary" role="alert">
+                    <h4 class="alert-heading">Oops!</h4>
+                    <p>You are not logged in yet!</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+@functions
+{
+    private string Error { get; set; }
+    private bool IsError { get; set; }
+    private bool IsSuccess { get; set; }
+    private StorageRecord MailerWebCurrentUser { get; set; }
+    private List<Signature> Signatures { get; set; }
+    private int Selected { get; set; }
+    private string Name { get; set; }
+    private string SignatureText { get; set; }
+
+
+    protected void ChangedEvent(UIChangeEventArgs e)
+    {
+        Selected = Convert.ToInt32(e.Value);
+        var signature = Signatures.FirstOrDefault(k => k.Id == Selected);
+        Name = signature.Name;
+        SignatureText = signature.SignatureText;
+        StateHasChanged();
+    }
+
+    protected override async void OnInit()
+    {
+        try
+        {
+            IsError = false;
+            IsSuccess = false;
+            MailerWebCurrentUser = JsonConvert.DeserializeObject<StorageRecord>(Storage["MailerWebCurrentUser"]);
+            var response = await Http.Request(HttpMethod.Get, UriHelper.GetBaseUri() + "api/user/getsignatures?token=" + MailerWebCurrentUser.Token);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(await response.Content.ReadAsStringAsync());
+                Error = response.StatusCode + ": " + errorResponse.UserMessage;
+
+                IsError = true;
+
+                return;
+            }
+
+            var successResponse = JsonConvert.DeserializeObject<SignaturesResponse>(await response.Content.ReadAsStringAsync());
+
+            Signatures = successResponse.Signatures;
+
+            StateHasChanged();
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            Error = e.Message;
+            IsError = true;
+        }
+    }
+
+    private async Task Add()
+    {
+        IsError = false;
+        IsSuccess = false;
+        var signature = new Signature { Name = Name, SignatureText = SignatureText };
+
+        var response = await Http.Request(HttpMethod.Post, UriHelper.GetBaseUri() + "api/user/addsignature", new AddSignatureData() { Signature = signature, Token = MailerWebCurrentUser.Token});
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(await response.Content.ReadAsStringAsync());
+            Error = response.StatusCode + ": " + errorResponse.UserMessage;
+
+            IsError = true;
+
+            return;
+        }
+
+        var successResponse = JsonConvert.DeserializeObject<SignaturesResponse>(await response.Content.ReadAsStringAsync());
+
+        Signatures.Add(successResponse.Signatures.FirstOrDefault());
+
+        IsSuccess = true;
+
+    }
+
+    private async Task Edit()
+    {
+        IsError = false;
+        IsSuccess = false;
+        var signature = new Signature { Name = Name, SignatureText = SignatureText };
+
+        var response = await Http.Request(HttpMethod.Put, UriHelper.GetBaseUri() + "api/user/editsignature", new EditSignatureData() { NewSignature = signature, SignatureId = Selected, Token = MailerWebCurrentUser.Token });
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(await response.Content.ReadAsStringAsync());
+            Error = response.StatusCode + ": " + errorResponse.UserMessage;
+
+            IsError = true;
+
+            return;
+        }
+
+        var successResponse = JsonConvert.DeserializeObject<SignaturesResponse>(await response.Content.ReadAsStringAsync());
+
+        Signatures.Remove(Signatures.FirstOrDefault(e => e.Id == Selected));
+
+        Signatures.Add(successResponse.Signatures.FirstOrDefault());
+
+        IsSuccess = true;
+
+    }
+
+
+    private async Task Delete()
+    {
+        IsError = false;
+        IsSuccess = false;
+        var signature = new Signature { Name = Name, SignatureText = SignatureText };
+
+        var response = await Http.Request(HttpMethod.Get, UriHelper.GetBaseUri() + "api/user/deletesignature?token=" + MailerWebCurrentUser.Token + "&signatureId=" + Selected);
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(await response.Content.ReadAsStringAsync());
+            Error = response.StatusCode + ": " + errorResponse.UserMessage;
+
+            IsError = true;
+
+            return;
+        }
+
+        Signatures.Remove(Signatures.FirstOrDefault(e => e.Id == Selected));
+
+        IsSuccess = true;
+
+    }
+
+}

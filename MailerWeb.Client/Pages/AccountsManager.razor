@@ -13,79 +13,109 @@
 @inject LocalStorage Storage
 @inject HttpService Http
 
-<h1>Accounts Manager</h1>
-<div>
-    <div class="form-row">
-        <div class="form-group">
-            <input type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" placeholder="Enter email" bind="@Login" />
-            <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-        </div>
-        <div class="form-group">
-            <input type="password" class="form-control" id="inputPassword" placeholder="Password" bind="@Password" />
+
+
+    <div class="row">
+        <div class="col-md-4">
+            <p class="h1">Accounts Manager</p>
+            <div class="form-group">
+                <input type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" placeholder="Enter email" bind="@Login" />
+                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+            </div>
+            <div class="form-group">
+                <input type="password" class="form-control" id="inputPassword" placeholder="Password" bind="@Password" />
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="additionalSettings" bind="@ShowAdditionalSettings" />
+                    <label class="form-check-label" for="additionalSettings">Show Additional Settings</label>
+                </div>
+            </div>
+            @if (ShowAdditionalSettings)
+            {
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Enter Imap Address" bind="@ImapAddress" />
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control" placeholder="Enter Imap Port" bind="@ImapPort" />
+                    <small class="form-text text-muted">Port for IMAP 993</small>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Enter Smtp Address" bind="@SmtpAddress" />
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-control" placeholder="Enter Smtp Port" bind="@SmtpPort" />
+                    <small class="form-text text-muted">Port for SMTP 465</small>
+                </div>
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="updateSettings" bind="@NewSettings" />
+                        <label class="form-check-label" for="updateSettings">Update Connection Settings</label>
+                    </div>
+                </div>
+            }
+
+            @if (IsError)
+            {
+                <div class="form-group">
+                    <div class="alert alert-danger" role="alert">@Error</div>
+                </div>
+            }
+
+            @if (IsSuccess)
+            {
+                <div class="form-group">
+                    <div class="alert alert-success" role="alert">Successful authorization!</div>
+                </div>
+            }
+
+
+            <div class="form-group">
+                <button class="btn btn-primary" onclick="@(async () => await SignIn())">Sign In</button>
+            </div>
+
+
+            @if (MailerWebCurrentUser != null)
+            {
+                <div class="form-group">
+                    <div class="card">
+                        <div class="card-header">
+                            Current account
+                        </div>
+                        <div class="card-body">
+                            @MailerWebCurrentUser.Login
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (MailerWebUsersList != null)
+            {
+                <div class="form-group">
+                    <div class="card">
+                        <div class="card-header">
+                            Added accounts
+                        </div>
+                        <div class="card-body">
+                            @foreach (var value in MailerWebUsersList)
+                            {
+                                <button type="button" class="btn btn-link" onclick="@(async () => await SetCurrent(value))">@value.Login</button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     </div>
-    <div class="form-group">
-        <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="additionalSettings" bind="@ShowAdditionalSettings" />
-            <label class="form-check-label" for="additionalSettings">Show Additional Settings</label>
-        </div>
-    </div>
-    @if (ShowAdditionalSettings)
-    {
-        <div class="form-row">
-            <div class="form-group">
-                <input type="text" class="form-control" placeholder="Enter Imap Address" bind="@ImapAddress" />
-            </div>
-            <div class="form-group">
-                <input type="number" class="form-control" placeholder="Enter Imap Port" bind="@ImapPort" />
-            </div>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <input type="text" class="form-control" placeholder="Enter Smtp Address" bind="@SmtpAddress" />
-            </div>
-            <div class="form-group">
-                <input type="number" class="form-control" placeholder="Enter Smtp Port" bind="@SmtpPort" />
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-check">
-                <input type="checkbox" class="form-check-input" id="updateSettings" bind="@NewSettings" />
-                <label class="form-check-label" for="updateSettings">Update Connection Settings</label>
-            </div>
-        </div>
-    }
-    <button class="btn btn-primary" onclick="@(async () => await SignIn())">Sign In</button>
-    @if (IsError)
-    {
-        <div class="form-row">
-            <div class="alert alert-danger" role="alert">@Error</div>
-        </div>
-    }
-    @if (!string.IsNullOrEmpty(Storage["MailerWebCurrentUser"]))
-    {
-        <div class="card">
-            <div class="card-body">
-                @Storage["MailerWebCurrentUser"]
-            </div>
-        </div>
-    }
-    @if (!string.IsNullOrEmpty(Storage["MailerWebUsers"]))
-    {
-        <div class="card">
-            <div class="card-body">
-                @Storage["MailerWebUsers"]
-            </div>
-        </div>
-    }
-</div>
 
 
 @functions
 {
     private bool ShowAdditionalSettings { get; set; } = false;
     private string Error { get; set; }
-    private bool IsError { get; set; } = false;
+    private bool IsError { get; set; }
+
+    private bool IsSuccess { get; set; }
 
     private string Login { get; set; }
     private string Password { get; set; }
@@ -95,34 +125,48 @@
     private int SmtpPort { get; set; }
     private bool NewSettings { get; set; }
 
+    List<StorageRecord> MailerWebUsersList { get; set; }
+    StorageRecord MailerWebCurrentUser { get; set; }
+
+
+    protected override void OnInit()
+    {
+        try
+        {
+            MailerWebUsersList = JsonConvert.DeserializeObject<List<StorageRecord>>(Storage["MailerWebUsers"]);
+            MailerWebCurrentUser = JsonConvert.DeserializeObject<StorageRecord>(Storage["MailerWebCurrentUser"]);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+    }
+
+    private async Task SetCurrent(StorageRecord record)
+    {
+        MailerWebCurrentUser = record;
+        Storage["MailerWebCurrentUser"] = JsonConvert.SerializeObject(MailerWebCurrentUser);
+    }
+
     private async Task SignIn()
     {
         IsError = false;
+        IsSuccess = false;
         var authCredentials = new SignCredentials
         {
-            ConnectionSettings = new ConnectionConfiguration(),
+            ConnectionSettings = null,
             Login = Login,
             Password = Password,
             NewConnectionSettings = NewSettings
         };
 
-        authCredentials.ConnectionSettings = null;
 
         if (!string.IsNullOrEmpty(ImapAddress))
         {
-            authCredentials.ConnectionSettings = new ConnectionConfiguration
-            {
-                ImapConfiguration =
-            {
-                Address = ImapAddress,
-                Port = ImapPort
-            },
-                SmtpConfiguration =
-            {
-                Address = SmtpAddress,
-                Port = SmtpPort
-            }
-            };
+            var imap = new ImapConfiguration() { Address = ImapAddress, Port = ImapPort };
+            var smtp = new SmtpConfiguration() { Address = SmtpAddress, Port = SmtpPort };
+            authCredentials.ConnectionSettings = new ConnectionConfiguration() { ImapConfiguration = imap, SmtpConfiguration = smtp};
+            authCredentials.NewConnectionSettings = NewSettings;
         }
 
         var response = await Http.Request(HttpMethod.Post, UriHelper.GetBaseUri() + "api/imap/SignIn", authCredentials);
@@ -130,7 +174,7 @@
         if (!response.IsSuccessStatusCode)
         {
             var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(await response.Content.ReadAsStringAsync());
-            Error = errorResponse.UserMessage;
+            Error = response.StatusCode + ": " + errorResponse.UserMessage;
 
             IsError = true;
 
@@ -139,28 +183,28 @@
 
         var successResponse = JsonConvert.DeserializeObject<TokenResponse>(await response.Content.ReadAsStringAsync());
 
-        var storageRecord = new StorageRecord { Login = Login, Token = successResponse.Token};
+        var storageRecord = new StorageRecord { Login = Login, Token = successResponse.Token };
 
-        List<StorageRecord> mailerWebUsersList = null;
-
-        var mailerWebUsers = Storage["MailerWebUsers"];
-        if (!string.IsNullOrEmpty(mailerWebUsers))
+        if (MailerWebUsersList == null)
         {
-            mailerWebUsersList = JsonConvert.DeserializeObject<List<StorageRecord>>(mailerWebUsers);
-            if (mailerWebUsersList.FirstOrDefault(e => e.Login == Login) != null)
-            {
-                mailerWebUsersList.Remove(mailerWebUsersList.FirstOrDefault(e => e.Login == Login));
-            }
-            mailerWebUsersList.Add(storageRecord);
+            MailerWebUsersList = new List<StorageRecord> { storageRecord };
         }
         else
         {
-            mailerWebUsersList = new List<StorageRecord> {storageRecord};
+            if (MailerWebUsersList.FirstOrDefault(e => e.Login == Login) != null)
+            {
+                MailerWebUsersList.Remove(MailerWebUsersList.FirstOrDefault(e => e.Login == Login));
+            }
+            MailerWebUsersList.Add(storageRecord);
         }
 
-        Storage["MailerWebUsers"] = JsonConvert.SerializeObject(mailerWebUsersList);
+        MailerWebCurrentUser = storageRecord;
+
+        Storage["MailerWebUsers"] = JsonConvert.SerializeObject(MailerWebUsersList);
 
         Storage["MailerWebCurrentUser"] = JsonConvert.SerializeObject(storageRecord);
+
+        IsSuccess = true;
 
     }
 }
