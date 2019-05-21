@@ -9,21 +9,31 @@
 @using Services
 @using Newtonsoft.Json;
 
-@inject Microsoft.AspNetCore.Blazor.Services.WebAssemblyUriHelper UriHelper
+@inject IUriHelper UriHelper
 @inject LocalStorage Storage
 @inject HttpService Http
+@inject IJSRuntime Js
+@inject LanguageService Lang
 
 
 
 <div class="row">
     <div class="col-md-12">
-        <p class="h1">Mailbox</p>
-        @if (MailerWebCurrentUser != null)
+        <p class="h1">@Lang.Languages[Language]["mailbox"]</p>
+        @if (IsEnabled)
         {
-
-            @if (Folders != null && Folders.Count > 0)
+            <div class="form-group">
+                <button class="btn btn-primary" onclick="@(async () => await Create())">@Lang.Languages[Language]["crt"]</button>
+                @if (IsCreation)
+                {
+                    <input type="text" class="form-control" aria-describedby="emailHelp" placeholder="@Lang.Languages[Language]["fdname"]" bind="@NewFolderName"/>
+                }
+                <button class="btn btn-danger" onclick="@(async () => await Delete())">@Lang.Languages[Language]["del"]</button>
+            </div>
+            @if (MailerWebCurrentUser != null)
             {
-                @if (IsEnabled)
+
+                @if (Folders != null && Folders.Count > 0)
                 {
                     <div class="form-group">
                         <div class="list-group">
@@ -42,72 +52,72 @@
                 else
                 {
                     <div class="form-group">
-                        <div class="alert alert-primary" role="alert">Please, wait...</div>
+                        <div class="alert alert-primary" role="alert">@Lang.Languages[Language]["pw"]</div>
                     </div>
+                }
+
+                @if (IsError)
+                {
+                    <div class="form-group">
+                        <div class="alert alert-danger" role="alert">@Error</div>
+                    </div>
+                }
+
+                @if (IsSuccess)
+                {
+                    <div class="form-group">
+                        <div class="alert alert-success" role="alert">@Lang.Languages[Language]["ok"]</div>
+                    </div>
+                }
+
+                @if (Envelopes != null && Envelopes.Count > 0)
+                {
+                    <div class="form-group">
+                        <div class="list-group">
+                            @foreach (var item in Envelopes)
+                            {
+                                <button type="button" class="list-group-item list-group-item-action" onclick="@(async () => await Open(item.Index, Selected))">
+                                    @item.Subject
+                                    @if (!item.IsSeen)
+                                    {
+                                        <span class="badge badge-pill badge-info">@Lang.Languages[Language]["unseen"]</span>
+                                    }
+                                    @if (item.IsAnswered)
+                                    {
+                                        <span class="badge badge-pill badge-success">@Lang.Languages[Language]["answed"]</span>
+                                    }
+                                    @if (item.IsFlagged)
+                                    {
+                                        <span class="badge badge-pill badge-danger">@Lang.Languages[Language]["imp"]</span>
+                                    }
+                                    <span class="badge badge-pill badge-secondary">@item.From[0].Email</span>
+                                </button>
+                            }
+                        </div>
+                    </div>
+
+                    @if (LoadingEnabled)
+                    {
+                        <div class="form-group">
+                            <button class="btn btn-primary" onclick="@(async () => await Load())">@Lang.Languages[Language]["lm"]</button>
+                        </div>
+                    }
                 }
             }
             else
             {
                 <div class="form-group">
-                    <div class="alert alert-primary" role="alert">Please, wait...</div>
-                </div>
-            }
-
-            @if (IsError)
-            {
-                <div class="form-group">
-                    <div class="alert alert-danger" role="alert">@Error</div>
-                </div>
-            }
-
-            @if (IsSuccess)
-            {
-                <div class="form-group">
-                    <div class="alert alert-success" role="alert">Ok!</div>
-                </div>
-            }
-
-            @if (Envelopes != null && Envelopes.Count > 0)
-            {
-                <div class="form-group">
-                    <div class="list-group">
-                        @foreach (var item in Envelopes)
-                        {
-                            <button type="button" class="list-group-item list-group-item-action" onclick="@(async () => await Open(item.Index, Selected))">
-                                @item.Subject
-                                @if (!item.IsSeen)
-                                {
-                                    <span class="badge badge-pill badge-info">Unseen</span>
-                                }
-                                @if (item.IsAnswered)
-                                {
-                                    <span class="badge badge-pill badge-success">Answered</span>
-                                }
-                                @if (item.IsFlagged)
-                                {
-                                    <span class="badge badge-pill badge-danger">!</span>
-                                }
-                                <span class="badge badge-pill badge-secondary">@item.From[0].Email</span>
-                            </button>
-                        }
+                    <div class="alert alert-primary" role="alert">
+                        <h4 class="alert-heading">@Lang.Languages[Language]["oops"]</h4>
+                        <p>@Lang.Languages[Language]["notlogged"]</p>
                     </div>
                 </div>
-
-                @if(LoadingEnabled)
-                {
-                    <div class="form-group">
-                        <button class="btn btn-primary" onclick="@(async () => await Load())">LoadMore</button>
-                    </div>
-                }
             }
         }
         else
         {
             <div class="form-group">
-                <div class="alert alert-primary" role="alert">
-                    <h4 class="alert-heading">Oops!</h4>
-                    <p>You are not logged in yet!</p>
-                </div>
+                <div class="alert alert-primary" role="alert">@Lang.Languages[Language]["pw"]</div>
             </div>
         }
     </div>
@@ -119,6 +129,7 @@
     private string Error { get; set; }
     private bool IsError { get; set; }
     private bool IsSuccess { get; set; }
+    private bool IsCreation { get; set; }
     private StorageRecord MailerWebCurrentUser { get; set; }
     private List<MailFolder> Folders { get; set; }
     private string Selected { get; set; }
@@ -127,6 +138,8 @@
     private List<MailEnvelope> Envelopes { get; set; }
     private bool LoadingEnabled { get; set; }
     private int Step { get; set; }
+    private string NewFolderName { get; set; }
+    private int Language { get; set; }
 
 
     protected async Task Changed(string value, int count)
@@ -152,7 +165,11 @@
 
     private async Task Open(int id, string folder)
     {
-
+        var url = UriHelper.GetBaseUri() + "mail?folder=" + folder + "&id=" + id;
+        await Js.InvokeAsync<object>("open", url, "_blank");
+        var env = Envelopes.FirstOrDefault(e => e.Index == id);
+        env.IsSeen = true;
+        StateHasChanged();
     }
 
     private async Task Load()
@@ -212,6 +229,16 @@
 
     protected override async void OnInit()
     {
+        IsEnabled = false;
+        try
+        {
+            Language = Convert.ToInt32(Storage["MailerWebLanguage"]);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
         try
         {
 
@@ -236,7 +263,6 @@
 
                 Folders = successResponse.Folders;
 
-                StateHasChanged();
             }
         }
         catch (Exception e)
@@ -245,6 +271,101 @@
             Error = e.Message;
             IsError = true;
         }
+        IsEnabled = true;
+        StateHasChanged();
+    }
+
+    private async Task Create()
+    {
+
+        if (IsCreation)
+        {
+            if (string.IsNullOrEmpty(NewFolderName))
+            {
+                return;
+            }
+
+            IsEnabled = false;
+            try
+            {
+
+                IsError = false;
+                IsSuccess = false;
+                var data = new CreateFolderData() { AllFolders = true, Token = MailerWebCurrentUser.Token, FolderName = NewFolderName};
+                var response = await Http.Request(HttpMethod.Post, UriHelper.GetBaseUri() + "api/imap/createfolder", data);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(await response.Content.ReadAsStringAsync());
+                    Error = response.StatusCode + ": " + errorResponse.UserMessage;
+
+                    IsError = true;
+
+                    return;
+                }
+
+                var successResponse = JsonConvert.DeserializeObject<FoldersResponse>(await response.Content.ReadAsStringAsync());
+
+                Folders = successResponse.Folders;
+
+                IsSuccess = true;
+                NewFolderName = "";
+                IsCreation = false;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Error = e.Message;
+                IsError = true;
+            }
+            IsEnabled = true;
+        }
+        else
+        {
+            IsCreation = true;
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task Delete()
+    {
+        IsEnabled = false;
+        try
+        {
+
+            IsError = false;
+            IsSuccess = false;
+            if (!string.IsNullOrEmpty(Selected))
+            {
+                var data = new DeleteFolderData() { AllFolders = true, FolderName = Selected, Token = MailerWebCurrentUser.Token };
+                var response = await Http.Request(HttpMethod.Delete, UriHelper.GetBaseUri() + "api/imap/deletefolder", data);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(await response.Content.ReadAsStringAsync());
+                    Error = response.StatusCode + ": " + errorResponse.UserMessage;
+
+                    IsError = true;
+
+                    return;
+                }
+
+                var successResponse = JsonConvert.DeserializeObject<FoldersResponse>(await response.Content.ReadAsStringAsync());
+
+                Folders = successResponse.Folders;
+
+                IsSuccess = true;
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            Error = e.Message;
+            IsError = true;
+        }
+        IsEnabled = true;
+        StateHasChanged();
     }
 
 }

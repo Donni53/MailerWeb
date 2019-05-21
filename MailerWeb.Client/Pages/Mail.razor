@@ -1,0 +1,169 @@
+﻿@page "/mail"
+@using Cloudcrate.AspNetCore.Blazor.Browser.Storage
+@using MailerWeb.Client.Services
+@using MailerWeb.Shared.Models
+@using MailerWeb.Shared.Models.Requests
+@using MailerWeb.Shared.Models.Responses
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Blazor.Services;
+@using Newtonsoft.Json
+
+@inject IUriHelper UriHelper
+@inject HttpService Http
+@inject LocalStorage Storage
+@inject IJSRuntime Js
+@inject LanguageService Lang
+
+
+
+<div class="row">
+    <div class="col-md-12">
+        <p class="h1">@Lang.Languages[Language]["mail"]</p>
+        @if (IsEnabled)
+        {
+            <div class="form-group">
+                <div class="card">
+                    <h5 class="card-header">Information</h5>
+                    <div class="card-body">
+                        <h6 class="card-title">@Lang.Languages[Language]["from"] @From.Name <span class="badge badge-info">@From.Email</span></h6>
+                        <h6 class="card-title">@Lang.Languages[Language]["to"] @To.Name <span class="badge badge-info">@To.Email</span></h6>
+                        <div class="form-group">
+                            <button class="btn btn-success" onclick="@(async () => await Answer())">@Lang.Languages[Language]["answ"]</button>
+                            <button class="btn btn-danger" onclick="@(async () => await Delete())">@Lang.Languages[Language]["del"]</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                @((MarkupString)HtmlBody)
+            </div>
+        }
+        else
+        {
+            <div class="form-group">
+                <div class="alert alert-primary" role="alert">@Lang.Languages[Language]["pw"]</div>
+            </div>
+        }
+        @if (IsError)
+        {
+            <div class="form-group">
+                <div class="alert alert-danger" role="alert">@Error</div>
+            </div>
+        }
+
+        @if (IsSuccess)
+        {
+            <div class="form-group">
+                <div class="alert alert-success" role="alert">@Lang.Languages[Language]["ok"]</div>
+            </div>
+        }
+    </div>
+</div>
+
+
+
+@functions
+{
+    public string Folder { get; set; }
+    public string Id { get; set; }
+
+    private string Error { get; set; }
+    private bool IsError { get; set; }
+    private bool IsSuccess { get; set; }
+    private bool IsEnabled { get; set; } = false;
+    private string HtmlBody { get; set; }
+    private Address From { get; set; }
+    private Address To { get; set; }
+    private DateTime Date { get; set; }
+    private int Language { get; set; }
+
+
+    private StorageRecord MailerWebCurrentUser { get; set; }
+
+    private async Task GetName()
+    {
+        var uri = new Uri(UriHelper.GetAbsoluteUri());
+        Folder = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("folder", out var folderType) ? folderType.First() : "";
+        Id = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("id", out var idType) ? idType.First() : "";
+        StateHasChanged();
+    }
+
+    protected override async void OnInit()
+    {
+        try
+        {
+            Language = Convert.ToInt32(Storage["MailerWebLanguage"]);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
+        try
+        {
+            IsError = false;
+            IsSuccess = false;
+            IsEnabled = false;
+            await GetName();
+            MailerWebCurrentUser = JsonConvert.DeserializeObject<StorageRecord>(Storage["MailerWebCurrentUser"]);
+            var response = await Http.Request(HttpMethod.Get, UriHelper.GetBaseUri() + "api/imap/getmessage?token=" + MailerWebCurrentUser.Token + "&index=" + Id + "&foldername=" + Folder);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(await response.Content.ReadAsStringAsync());
+                Error = response.StatusCode + ": " + errorResponse.UserMessage;
+
+                IsError = true;
+
+                return;
+            }
+
+            var successResponse = JsonConvert.DeserializeObject<MessageResponse>(await response.Content.ReadAsStringAsync());
+
+            HtmlBody = successResponse.HtmlBody;
+
+            From = successResponse.From.FirstOrDefault();
+
+            To = successResponse.To.FirstOrDefault();
+
+            IsEnabled = true;
+
+            StateHasChanged();
+
+            var indexList = new List<int> { Convert.ToInt32(Id) };
+
+            await Http.Request(HttpMethod.Put, UriHelper.GetBaseUri() + "api/imap/markmessages", new MarkData { FolderName = Folder, Token = MailerWebCurrentUser.Token, Flag = "seen", IndexList = indexList });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            Error = e.Message;
+            IsError = true;
+        }
+
+    }
+
+    private async Task Answer()
+    {
+        var url = UriHelper.GetBaseUri() + "mailsender?email=" + From.Email;
+        await Js.InvokeAsync<object>("open", url, "_blank");
+    }
+
+    private async Task Delete()
+    {
+        var indexList = new List<int> { Convert.ToInt32(Id) };
+        var response = await Http.Request(HttpMethod.Delete, UriHelper.GetBaseUri() + "api/imap/deletemessages", new DeleteMessagesData { FolderName = Folder, Token = MailerWebCurrentUser.Token, IndexList = indexList });
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(await response.Content.ReadAsStringAsync());
+            Error = response.StatusCode + ": " + errorResponse.UserMessage;
+
+            IsError = true;
+
+            return;
+        }
+
+        await Js.InvokeAsync<object>("close");
+
+    }
+
+}

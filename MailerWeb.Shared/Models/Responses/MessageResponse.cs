@@ -6,6 +6,11 @@ namespace MailerWeb.Shared.Models.Responses
 {
     public class MessageResponse
     {
+        public MessageResponse()
+        {
+
+        }
+
         public MessageResponse(MimeMessage message, bool textBody)
         {
             MessageId = message.MessageId;

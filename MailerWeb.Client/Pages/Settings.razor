@@ -9,21 +9,22 @@
 @using Services
 @using Newtonsoft.Json;
 
-@inject Microsoft.AspNetCore.Blazor.Services.WebAssemblyUriHelper UriHelper
+@inject IUriHelper UriHelper
 @inject LocalStorage Storage
 @inject HttpService Http
+@inject LanguageService Lang
 
 
 
 <div class="row">
     <div class="col-md-8">
-        <p class="h1">Settings</p>
+        <p class="h1">@Lang.Languages[CurrentLanguage]["sett"]</p>
         @if (MailerWebCurrentUser != null)
         {
             @if (Signatures != null && Signatures.Count > 0)
             {
                 <div class="form-group">
-                    <label for="exampleFormControlSelect2">Select signature</label>
+                    <label for="exampleFormControlSelect2">@Lang.Languages[CurrentLanguage]["ss"]</label>
                     <select multiple class="form-control" id="exampleFormControlSelect2" onchange="@ChangedEvent">
                         @foreach (var item in Signatures)
                         {
@@ -33,21 +34,46 @@
                 </div>
             }
             <div class="form-group">
-                <label for="exampleFormControlInput1">Name</label>
-                <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="John Doe" bind="@Name"/>
+                <label for="exampleFormControlInput1">@Lang.Languages[CurrentLanguage]["name"]</label>
+                <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="@Lang.Languages[CurrentLanguage]["jd"]" bind="@Name" />
             </div>
             <div class="form-group">
-                <label for="exampleFormControlTextarea1">Signature text</label>
+                <label for="exampleFormControlTextarea1">@Lang.Languages[CurrentLanguage]["st"]</label>
                 <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" bind="@SignatureText"></textarea>
             </div>
             <div class="form-group">
-                <button class="btn btn-primary" onclick="@(async () => await Add())">Add</button>
+                <button class="btn btn-primary" onclick="@(async () => await Add())">@Lang.Languages[CurrentLanguage]["add"]</button>
                 @if (Selected != 0)
                 {
-                    <button class="btn btn-warning" onclick="@(async () => await Edit())">Edit</button>
-                    <button class="btn btn-danger" onclick="@(async () => await Delete())">Delete</button>
+            <button class="btn btn-warning" onclick="@(async () => await Edit())">@Lang.Languages[CurrentLanguage]["edit"]</button>
+            <button class="btn btn-danger" onclick="@(async () => await Delete())">@Lang.Languages[CurrentLanguage]["del"]</button>
                 }
             </div>
+
+            <div class="form-group">
+                <label for="exampleFormControlSelect12">@Lang.Languages[CurrentLanguage]["lang"]</label>
+                <select class="form-control" id="exampleFormControlSelect12" onchange="@LangChangedEvent">
+                    <option value="0">English</option>
+                    <option value="1">Русский</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="exampleFormControlSelect13">@Lang.Languages[CurrentLanguage]["theme"]</label>
+                <select class="form-control" id="exampleFormControlSelect13" onchange="@ThemeChangedEvent">
+                    <option value="bootstrap">Default</option>
+                    <option value="darkly">Darkly</option>
+                    <option value="lux">Lux</option>
+                    <option value="sketchy">Sketchy</option>
+                    <option value="slate">Slate</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <button class="btn btn-primary" onclick="@(async () => await Save())">Save</button>
+                <small class="form-text text-muted">@Lang.Languages[CurrentLanguage]["prr"]</small>
+            </div>
+
             @if (IsError)
             {
                 <div class="form-group">
@@ -58,7 +84,7 @@
             @if (IsSuccess)
             {
                 <div class="form-group">
-                    <div class="alert alert-success" role="alert">Ok!</div>
+                    <div class="alert alert-success" role="alert">@Lang.Languages[CurrentLanguage]["ok"]</div>
                 </div>
             }
 
@@ -67,8 +93,8 @@
         {
             <div class="form-group">
                 <div class="alert alert-primary" role="alert">
-                    <h4 class="alert-heading">Oops!</h4>
-                    <p>You are not logged in yet!</p>
+                    <h4 class="alert-heading">@Lang.Languages[CurrentLanguage]["oops"]</h4>
+                    <p>@Lang.Languages[Language]["notlogged"]</p>
                 </div>
             </div>
         }
@@ -86,6 +112,9 @@
     private int Selected { get; set; }
     private string Name { get; set; }
     private string SignatureText { get; set; }
+    private int Language { get; set; }
+    private string Theme { get; set; } = "bootstrap";
+    private int CurrentLanguage { get; set; }
 
 
     protected void ChangedEvent(UIChangeEventArgs e)
@@ -99,6 +128,15 @@
 
     protected override async void OnInit()
     {
+        try
+        {
+            CurrentLanguage = Convert.ToInt32(Storage["MailerWebLanguage"]);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
         try
         {
             IsError = false;
@@ -130,6 +168,15 @@
             Console.WriteLine(e);
             Error = e.Message;
             IsError = true;
+        }
+
+        try
+        {
+            CurrentLanguage = Convert.ToInt32(Storage["MailerWebLanguage"]);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
         }
     }
 
@@ -185,7 +232,6 @@
 
     }
 
-
     private async Task Delete()
     {
         IsError = false;
@@ -207,6 +253,31 @@
 
         IsSuccess = true;
 
+    }
+
+    protected void LangChangedEvent(UIChangeEventArgs e)
+    {
+        Language = Convert.ToInt32(e.Value);
+    }
+
+    protected void ThemeChangedEvent(UIChangeEventArgs e)
+    {
+        Theme = Convert.ToString(e.Value);
+    }
+
+    private async Task Save()
+    {
+        try
+        {
+            Storage["MailerWebTheme"] = Theme;
+            Storage["MailerWebLanguage"] = Convert.ToString(Language);
+            IsSuccess = true;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            IsError = true;
+        }
     }
 
 }

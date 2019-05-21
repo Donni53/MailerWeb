@@ -11,6 +11,7 @@ namespace MailerWeb.Client
         {
             services.AddStorage();
             services.AddScoped<HttpService>();
+            services.AddSingleton<LanguageService>();
         }
 
         public void Configure(IComponentsApplicationBuilder app)

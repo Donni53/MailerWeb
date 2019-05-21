@@ -8,46 +8,210 @@
 @using Services
 @using Newtonsoft.Json;
 
-@inject Microsoft.AspNetCore.Blazor.Services.WebAssemblyUriHelper UriHelper
 @inject LocalStorage Storage
 @inject HttpService Http
+@inject IUriHelper UriHelper
+@inject LanguageService Lang
 
 
 
-    <div class="row">
-        <div class="col-md-12">
-            <p class="h1">Mailsender</p>
-            @if (MailerWebCurrentUser != null)
+<div class="row">
+    <div class="col-md-12">
+        <p class="h1">Mailsender</p>
+        @if (MailerWebCurrentUser != null)
+        {
+            @if (IsEnabled)
             {
-
+                <div class="form-group">
+                    <label for="exampleInputEmail1">@Lang.Languages[Language]["ea"]</label>
+                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="@Lang.Languages[Language]["entEmail"]" bind="@Email" />
+                </div>
+                @if (Signatures != null && Signatures.Count > 0)
+                 {
+                     <div class="form-group">
+                         <label for="exampleFormControlSelect2">@Lang.Languages[Language]["ss"]</label>
+                         <select multiple class="form-control" id="exampleFormControlSelect2" onchange="@ChangedEvent">
+                             <option value="0">None</option>
+                             @foreach (var item in Signatures)
+                             {
+                                 <option value="@item.Id" title="@item.SignatureText">@item.Name</option>
+                             }
+                         </select>
+                     </div>
+                 }
+                <div class="form-group">
+                    <input type="text" class="form-control" id="exampleFormControlInput2" placeholder="@Lang.Languages[Language]["subj"]" bind="@Subject"/>
+                </div>
+                <div class="form-group">
+                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="5" placeholder="@Lang.Languages[Language]["et"]" bind="@EmailText"></textarea>
+                </div>
+                @if (!string.IsNullOrEmpty(Email) && !string.IsNullOrEmpty(EmailText))
+                 {
+                     <div class="form-group">
+                         <button class="btn btn-primary" onclick="@(async () => await Send())">@Lang.Languages[Language]["send"]</button>
+                     </div>
+                 }
             }
             else
             {
                 <div class="form-group">
-                    <div class="alert alert-primary" role="alert">
-                        <h4 class="alert-heading">Oops!</h4>
-                        <p>You are not logged in yet!</p>
-                    </div>
+                    <div class="alert alert-primary" role="alert">@Lang.Languages[Language]["pw"]</div>
                 </div>
             }
-        </div>
+            @if (IsError)
+            {
+                <div class="form-group">
+                    <div class="alert alert-danger" role="alert">@Error</div>
+                </div>
+            }
+
+            @if (IsSuccess)
+            {
+                <div class="form-group">
+                    <div class="alert alert-success" role="alert">@Lang.Languages[Language]["ok"]</div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="form-group">
+                <div class="alert alert-primary" role="alert">
+                    <h4 class="alert-heading">@Lang.Languages[Language]["oops"]</h4>
+                    <p>@Lang.Languages[Language]["notlogged"]</p>
+                </div>
+            </div>
+        }
     </div>
+</div>
 
 
 @functions
 {
 
     StorageRecord MailerWebCurrentUser { get; set; }
+    private string Email { get; set; }
+    private string Error { get; set; }
+    private bool IsError { get; set; }
+    private bool IsSuccess { get; set; }
+    private bool IsEnabled { get; set; } = false;
+    private List<Signature> Signatures { get; set; }
+    private Signature SelSing { get; set; }
+    private int Selected { get; set; }
+    private string EmailText { get; set; }
+    private string Subject { get; set; }
+    private int Language { get; set; }
 
-    protected override void OnInit()
+    private async Task GetName()
+    {
+        var uri = new Uri(UriHelper.GetAbsoluteUri());
+        Email = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query).TryGetValue("email", out var emailType) ? emailType.First() : "";
+        StateHasChanged();
+    }
+
+    protected void ChangedEvent(UIChangeEventArgs e)
+    {
+        Selected = Convert.ToInt32(e.Value);
+        SelSing = Signatures.FirstOrDefault(k => k.Id == Selected);
+        StateHasChanged();
+    }
+
+
+    private async Task Send()
     {
         try
         {
-            MailerWebCurrentUser = JsonConvert.DeserializeObject<StorageRecord>(Storage["MailerWebCurrentUser"]);
+            IsError = false;
+            IsSuccess = false;
+            IsEnabled = false;
+
+            var addressFrom = new Address() {Email = MailerWebCurrentUser.Login, Name = SelSing.Name};
+            var addressTo = new Address() {Email = Email, Name = ""};
+
+            var htmlBody = EmailText;
+            if (Selected > 0)
+            {
+                htmlBody += "\r\n";
+                htmlBody += "--------------MailerWeb---------------";
+                htmlBody += "\r\n";
+                htmlBody += SelSing.SignatureText;
+            }
+
+            var data = new SendMessageData() { From = addressFrom, Subject = Subject, To = new List<Address>() { addressTo }, Token = MailerWebCurrentUser.Token, HtmlBody = htmlBody };
+
+            var response = await Http.Request(HttpMethod.Post, UriHelper.GetBaseUri() + "api/smtp/sendmessage", data);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(await response.Content.ReadAsStringAsync());
+                Error = response.StatusCode + ": " + errorResponse.UserMessage;
+
+                IsError = true;
+
+                return;
+            }
+
+            var successResponse = JsonConvert.DeserializeObject<EnvelopesResponse>(await response.Content.ReadAsStringAsync());
+
+            IsSuccess = true;
+
+            StateHasChanged();
+
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
+            Error = e.Message;
+            IsError = true;
+        }
+        IsEnabled = true;
+    }
+
+
+    protected override async void OnInit()
+    {
+        try
+        {
+            Language = Convert.ToInt32(Storage["MailerWebLanguage"]);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
+        try
+        {
+            IsEnabled = false;
+            MailerWebCurrentUser = JsonConvert.DeserializeObject<StorageRecord>(Storage["MailerWebCurrentUser"]);
+            await GetName();
+
+            if (!string.IsNullOrEmpty(Storage["MailerWebCurrentUser"]))
+            {
+                MailerWebCurrentUser = JsonConvert.DeserializeObject<StorageRecord>(Storage["MailerWebCurrentUser"]);
+                var response = await Http.Request(HttpMethod.Get, UriHelper.GetBaseUri() + "api/user/getsignatures?token=" + MailerWebCurrentUser.Token);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(await response.Content.ReadAsStringAsync());
+                    Error = response.StatusCode + ": " + errorResponse.UserMessage;
+
+                    IsError = true;
+
+                    return;
+                }
+
+                var successResponse = JsonConvert.DeserializeObject<SignaturesResponse>(await response.Content.ReadAsStringAsync());
+
+                Signatures = successResponse.Signatures;
+
+            }
+
+            IsEnabled = true;
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            Error = e.Message;
+            IsError = true;
         }
     }
 

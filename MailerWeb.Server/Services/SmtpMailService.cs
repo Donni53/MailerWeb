@@ -9,11 +9,11 @@ namespace MailerWeb.Server.Services
 {
     public class SmtpMailService : ISmtpMailService
     {
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
         private readonly IMemoryCacheDataService _memoryCache;
         private readonly ISmtpService _smtpService;
 
-        public SmtpMailService(ISmtpService smtpService, IMemoryCacheDataService memoryCache, AuthService authService)
+        public SmtpMailService(ISmtpService smtpService, IMemoryCacheDataService memoryCache, IAuthService authService)
         {
             _smtpService = smtpService;
             _memoryCache = memoryCache;
