@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MailerWeb.Shared", "MailerW
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MailerWeb.DAL", "MailerWeb.DAL\MailerWeb.DAL.csproj", "{E1B3EFB8-FDB3-487C-984F-E9FFF611E128}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MailerWeb.Tests", "MailerWeb.Tests\MailerWeb.Tests.csproj", "{2B53FE06-8252-4A4F-BAAB-EB3B0FEFDE2E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{E1B3EFB8-FDB3-487C-984F-E9FFF611E128}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1B3EFB8-FDB3-487C-984F-E9FFF611E128}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1B3EFB8-FDB3-487C-984F-E9FFF611E128}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B53FE06-8252-4A4F-BAAB-EB3B0FEFDE2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B53FE06-8252-4A4F-BAAB-EB3B0FEFDE2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B53FE06-8252-4A4F-BAAB-EB3B0FEFDE2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B53FE06-8252-4A4F-BAAB-EB3B0FEFDE2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

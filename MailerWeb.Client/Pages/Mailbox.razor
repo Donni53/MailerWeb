@@ -22,17 +22,16 @@
         <p class="h1">@Lang.Languages[Language]["mailbox"]</p>
         @if (IsEnabled)
         {
-            <div class="form-group">
-                <button class="btn btn-primary" onclick="@(async () => await Create())">@Lang.Languages[Language]["crt"]</button>
-                @if (IsCreation)
-                {
-                    <input type="text" class="form-control" aria-describedby="emailHelp" placeholder="@Lang.Languages[Language]["fdname"]" bind="@NewFolderName"/>
-                }
-                <button class="btn btn-danger" onclick="@(async () => await Delete())">@Lang.Languages[Language]["del"]</button>
-            </div>
             @if (MailerWebCurrentUser != null)
             {
-
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="@(async () => await Create())">@Lang.Languages[Language]["crt"]</button>
+                    @if (IsCreation)
+                    {
+                        <input type="text" class="form-control" aria-describedby="emailHelp" placeholder="@Lang.Languages[Language]["fdname"]" bind="@NewFolderName"/>
+                    }
+                    <button class="btn btn-danger" onclick="@(async () => await Delete())">@Lang.Languages[Language]["del"]</button>
+                </div>
                 @if (Folders != null && Folders.Count > 0)
                 {
                     <div class="form-group">

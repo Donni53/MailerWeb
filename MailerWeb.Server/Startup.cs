@@ -43,7 +43,7 @@ namespace MailerWeb.Server
             var connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<DataBaseContext>(options =>
                 {
-                    options.UseLazyLoadingProxies().UseSqlServer(connection);
+                    options.UseLazyLoadingProxies().UseSqlServer(connection, b => b.MigrationsAssembly("MailerWeb.Server"));
                     options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.QueryClientEvaluationWarning));
                 });
 
