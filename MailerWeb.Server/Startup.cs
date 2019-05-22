@@ -47,6 +47,9 @@ namespace MailerWeb.Server
                     options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.QueryClientEvaluationWarning));
                 });
 
+            // Automatically perform database migration
+            services.BuildServiceProvider().GetService<DataBaseContext>().Database.Migrate();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
