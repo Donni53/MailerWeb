@@ -238,7 +238,7 @@
         IsSuccess = false;
         var signature = new Signature { Name = Name, SignatureText = SignatureText };
 
-        var response = await Http.Request(HttpMethod.Get, UriHelper.GetBaseUri() + "api/user/deletesignature?token=" + MailerWebCurrentUser.Token + "&signatureId=" + Selected);
+        var response = await Http.Request(HttpMethod.Delete, UriHelper.GetBaseUri() + "api/user/deletesignature?token=" + MailerWebCurrentUser.Token + "&signatureId=" + Selected);
         if (!response.IsSuccessStatusCode)
         {
             var errorResponse = JsonConvert.DeserializeObject<ErrorResponse>(await response.Content.ReadAsStringAsync());
